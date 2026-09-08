@@ -16,7 +16,9 @@ import {
   X,
   Moon,
   LogOut,
-  Settings
+  Settings,
+  Package,
+  Scissors
 } from "lucide-react";
 import { useState } from "react";
 
@@ -25,6 +27,8 @@ const navItems = [
   // { name: "Hero Banners", href: "/hero-banners", icon: ImageIcon },
   { name: "Categories", href: "/categories", icon: Box },
   { name: "Products", href: "/products", icon: ShoppingBag },
+  { name: "Orders", href: "/orders", icon: Package },
+  { name: "Custom Orders", href: "/custom-orders", icon: Scissors },
   { name: "Designers", href: "/designers", icon: Users },
   { name: "Celebrities", href: "/celebrities", icon: Star },
   { name: "Wedding Studio", href: "/wedding", icon: Heart },

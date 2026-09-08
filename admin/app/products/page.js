@@ -48,10 +48,20 @@ export default function ProductsPage() {
 
   const handleSubmit = async (data) => {
     try {
+      const payload = { ...data };
+      if (typeof payload.sizes === 'string' && payload.sizes) {
+        payload.sizes = payload.sizes.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      if (typeof payload.bottomSizes === 'string' && payload.bottomSizes) {
+        payload.bottomSizes = payload.bottomSizes.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      if (typeof payload.addons === 'string' && payload.addons) {
+        try { payload.addons = JSON.parse(payload.addons); } catch { payload.addons = []; }
+      }
       if (editingProduct) {
-        await updateProduct(editingProduct._id, data);
+        await updateProduct(editingProduct._id, payload);
       } else {
-        await createProduct(data);
+        await createProduct(payload);
       }
       setIsModalOpen(false);
       fetchData();
@@ -90,8 +100,16 @@ export default function ProductsPage() {
     { name: "title", label: "Title", type: "text", required: true },
     { name: "subtitle", label: "Subtitle", type: "text" },
     { name: "designerName", label: "Designer Name", type: "text" },
+    { name: "productCode", label: "Product Code", type: "text" },
+    { name: "description", label: "Description", type: "textarea" },
+    { name: "shippingInfo", label: "Shipping Information", type: "textarea" },
+    { name: "disclaimer", label: "Disclaimer", type: "textarea" },
     { name: "tags", label: "Tags (Comma Separated)", type: "tags" },
     { name: "variants", label: "Color Variants & Pricing", type: "variants" },
+    { name: "sizes", label: "Sizes (Comma Separated, e.g. XS,S,M,L,XL)", type: "text" },
+    { name: "bottomSizes", label: "Bottom Sizes (Comma Separated)", type: "text" },
+    { name: "addons", label: "Add-ons (JSON: [{name,price,hasSizes,sizes[]}])", type: "textarea" },
+    { name: "customTailoringEnabled", label: "Custom Tailoring Enabled", type: "toggle" },
     { name: "showInHomePage", label: "Show in Homepage", type: "toggle" },
     { name: "homePageOrder", label: "Home Page Order", type: "number" }
   ];
@@ -133,8 +151,11 @@ export default function ProductsPage() {
         fields={formFields}
         initialData={editingProduct ? {
           ...editingProduct,
-          category: editingProduct.category?._id || editingProduct.category
-        } : null}
+          category: editingProduct.category?._id || editingProduct.category,
+          sizes: Array.isArray(editingProduct.sizes) ? editingProduct.sizes.join(', ') : editingProduct.sizes,
+          bottomSizes: Array.isArray(editingProduct.bottomSizes) ? editingProduct.bottomSizes.join(', ') : editingProduct.bottomSizes,
+          addons: Array.isArray(editingProduct.addons) ? JSON.stringify(editingProduct.addons, null, 2) : editingProduct.addons,
+        } : { customTailoringEnabled: true }}
         onSubmit={handleSubmit}
       />
     </div>

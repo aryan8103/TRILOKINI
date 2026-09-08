@@ -32,6 +32,9 @@ const favouriteRoutes = require('./routes/favouriteRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const collectionImageRoutes = require('./routes/collectionImageRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const pricingRoutes = require('./routes/pricingRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const customOrderRoutes = require('./routes/customOrderRoutes');
 
 // Basic Route
 app.get('/api/health', (req, res) => {
@@ -48,6 +51,9 @@ app.use('/api/favourites', favouriteRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/collection-images', collectionImageRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/pricing', pricingRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/custom-orders', customOrderRoutes);
 
 const startServer = async () => {
   await connectDB();

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { ProductDetailView } from "@/components/product-detail-view";
+import { ProductDetailClient } from "@/components/product-detail-client";
 import { PageShell } from "@/components/templates/page-shell";
 import { getProduct, getRelatedProducts } from "@/lib/services/products";
 
@@ -11,7 +11,7 @@ export default async function BespokeProductPage({ params }: { params: Promise<{
 
   return (
     <PageShell>
-      <ProductDetailView product={{ ...product, isBespoke: true }} relatedProducts={related} bespoke />
+      <ProductDetailClient product={{ ...product, isBespoke: true }} relatedProducts={related} />
     </PageShell>
   );
 }

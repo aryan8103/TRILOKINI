@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout";
 export function PageShell({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <ResponsiveShell>
-      <main className={`pb-20 pt-0 lg:pb-14 ${className}`}>{children}</main>
+      <main className={`pb-20 pt-0 lg:pb-0 ${className}`}>{children}</main>
       <Footer />
     </ResponsiveShell>
   );

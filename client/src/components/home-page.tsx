@@ -27,12 +27,13 @@ function resolveImage(url?: string): string {
 function toClientProduct(p: ApiProduct): Product {
   return {
     id: p._id,
-    src: resolveImage(p.imageUrl),
+    src: resolveImage(p.imageUrl || p.variants?.[0]?.images?.[0]),
     designer: p.designerName,
     name: p.title,
     price: `Rs. ${p.currentPrice?.toLocaleString('en-IN')}`,
     originalPrice: p.previousPrice ? `Rs. ${p.previousPrice.toLocaleString('en-IN')}` : undefined,
     discount: p.discountPercentage ? `${p.discountPercentage}% Off` : undefined,
+    href: `/products/${p._id}`,
   };
 }
 

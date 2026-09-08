@@ -44,7 +44,7 @@ export const footerLinks = {
     { label: "Accesories", href: "/products?category=accessories" },
   ],
   SUPPORT: [
-    { label: "Track Order", href: "/account" },
+    { label: "Track Order", href: "/track-orders" },
     { label: "Contact Us", href: "/contact" },
     { label: "My Account", href: "/account" },
   ],

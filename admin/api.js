@@ -62,4 +62,12 @@ export const uploadImage = async (file) => {
   return res.data;
 };
 
+export const getOrders = (params) => api.get('/api/orders', { params });
+export const updateOrderStatus = (id, data) => api.patch(`/api/orders/${id}/status`, data);
+
+export const getCustomOrders = (params) => api.get('/api/custom-orders', { params });
+export const setCustomOrderPrice = (id, data) => api.patch(`/api/custom-orders/${id}/price`, data);
+export const addCustomOrderMessage = (id, data) => api.post(`/api/custom-orders/${id}/messages`, data);
+export const updateCustomOrderStatus = (id, data) => api.patch(`/api/custom-orders/${id}/status`, data);
+
 export default api;

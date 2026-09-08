@@ -21,6 +21,13 @@ const variantSchema = new mongoose.Schema({
   }
 });
 
+const addonSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  price: { type: Number, required: true },
+  hasSizes: { type: Boolean, default: false },
+  sizes: [{ type: String }],
+}, { _id: true });
+
 const productSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.Types.ObjectId,
@@ -37,56 +44,42 @@ const productSchema = new mongoose.Schema({
     trim: true,
   },
   variants: [variantSchema],
-  // Retaining root fields for backward compatibility, making them optional
-  currentPrice: {
-    type: Number,
+  currentPrice: { type: Number },
+  previousPrice: { type: Number },
+  discountPercentage: { type: Number },
+  imageUrl: { type: String },
+  designerName: { type: String },
+  productCode: { type: String, trim: true },
+  description: { type: String },
+  shippingInfo: { type: String },
+  disclaimer: { type: String },
+  sizes: [{ type: String }],
+  bottomSizes: [{ type: String }],
+  stockBySize: {
+    type: Map,
+    of: Number,
+    default: {},
   },
-  previousPrice: {
-    type: Number,
-  },
-  discountPercentage: {
-    type: Number,
-  },
-  imageUrl: {
-    type: String,
-  },
-  designerName: {
-    type: String,
-  },
-  tags: [{
-    type: String,
-    trim: true,
-  }],
-  showInHomePage: {
-    type: Boolean,
-    default: false,
-  },
-  homePageOrder: {
-    type: Number,
-    default: 0,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  }
+  addons: [addonSchema],
+  customTailoringEnabled: { type: Boolean, default: true },
+  tags: [{ type: String, trim: true }],
+  showInHomePage: { type: Boolean, default: false },
+  homePageOrder: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
-// Pre-save hook to calculate discounts and sync primary variant
 productSchema.pre('save', function(next) {
-  // Calculate discount for root level
   if (this.previousPrice && this.currentPrice && this.previousPrice > this.currentPrice) {
     this.discountPercentage = Math.round(((this.previousPrice - this.currentPrice) / this.previousPrice) * 100);
   }
-  
-  // Calculate discounts for variants
+
   if (this.variants && this.variants.length > 0) {
     this.variants.forEach(variant => {
       if (variant.previousPrice && variant.currentPrice && variant.previousPrice > variant.currentPrice) {
         variant.discountPercentage = Math.round(((variant.previousPrice - variant.currentPrice) / variant.previousPrice) * 100);
       }
     });
-    
-    // Sync first variant to root fields to prevent breaking the storefront homepage
+
     const primaryVariant = this.variants[0];
     this.currentPrice = primaryVariant.currentPrice;
     this.previousPrice = primaryVariant.previousPrice;
@@ -95,7 +88,7 @@ productSchema.pre('save', function(next) {
       this.imageUrl = primaryVariant.images[0];
     }
   }
-  
+
   next();
 });
 

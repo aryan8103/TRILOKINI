@@ -1,2 +1,0 @@
-# TRILOKINI
-TRILOKINI Website

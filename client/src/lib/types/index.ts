@@ -20,10 +20,12 @@ export type Product = {
   tags?: string[];
   productCode?: string;
   sizes?: string[];
+  bottomSizes?: string[];
   stockBySize?: Record<string, number>;
   description?: string;
   shippingInfo?: string;
   disclaimer?: string;
+  customTailoringEnabled?: boolean;
   isBespoke?: boolean;
   addons?: ProductAddon[];
 };
@@ -32,6 +34,7 @@ export type ProductAddon = {
   id: string;
   name: string;
   price: number;
+  hasSizes?: boolean;
   sizes?: string[];
 };
 
@@ -140,4 +143,83 @@ export type BespokeOption = {
   title: string;
   description: string;
   imageUrl: string;
+};
+
+export type MeasurementFields = {
+  shoulder?: number;
+  bust?: number;
+  underBust?: number;
+  armHole?: number;
+  sleeveLength?: number;
+  bicep?: number;
+  elbow?: number;
+  wrist?: number;
+  waist?: number;
+  lowerWaist?: number;
+  hip?: number;
+  topLength?: number;
+  bottomLength?: number;
+  kurtaLength?: number;
+  frontNeckDepth?: number;
+  backNeckDepth?: number;
+  crotchLength?: number;
+  thighCircumference?: number;
+  kneeCircumference?: number;
+  calfCircumference?: number;
+  ankleCircumference?: number;
+};
+
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+export type Order = {
+  _id: string;
+  orderNumber: string;
+  customerName?: string;
+  customerEmail: string;
+  customerMobile: string;
+  items: {
+    productTitle: string;
+    designerName?: string;
+    imageUrl?: string;
+    size: string;
+    bottomSize?: string;
+    color?: string;
+    addons?: { name: string; price: number; size?: string }[];
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
+  }[];
+  subtotal: number;
+  shipping: number;
+  discount: number;
+  total: number;
+  status: OrderStatus;
+  paymentStatus: string;
+  trackingNumber?: string;
+  statusHistory?: { status: string; note?: string; at: string }[];
+  createdAt: string;
+};
+
+export type CustomOrderStatus =
+  | 'submitted' | 'under_review' | 'price_set' | 'payment_pending'
+  | 'paid' | 'in_production' | 'shipped' | 'delivered' | 'cancelled';
+
+export type CustomOrder = {
+  _id: string;
+  orderNumber: string;
+  productTitle: string;
+  designerName?: string;
+  imageUrl?: string;
+  color?: string;
+  unit: 'inches' | 'cms';
+  measurements: MeasurementFields;
+  customerEmail: string;
+  customerMobile: string;
+  status: CustomOrderStatus;
+  quotedPrice?: number;
+  finalPrice?: number;
+  paymentStatus: string;
+  messages?: { sender: 'customer' | 'admin'; text: string; at: string }[];
+  statusHistory?: { status: string; note?: string; at: string }[];
+  createdAt: string;
 };

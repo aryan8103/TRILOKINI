@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/providers/cart-provider";
+import { useAuth } from "@/components/providers/auth-provider";
+import { AuthModal } from "@/components/auth/auth-modal";
 import { SearchOverlay } from "@/components/search-overlay";
 import { categoryNav, footerLinks, mobileStickyNav, utilityNav } from "@/lib/navigation";
 import { CartPopout } from "./commerce";
@@ -23,6 +25,7 @@ const navIcons = ["/icons/shop-all.png", "/icons/wedding-nav.png", "/icons/recep
 export function DesktopHeader() {
   const pathname = usePathname();
   const { openCart, itemCount } = useCart();
+  const { user, openAuth } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -54,7 +57,11 @@ export function DesktopHeader() {
                 <span>INR</span>
                 <Image src={icons.sort} alt="" width={10} height={10} className="h-[max(10px,0.69vw)] w-[max(10px,0.69vw)]" />
               </div>
-              <Link href="/account" className="hover:underline">ACCOUNT</Link>
+              {user ? (
+                <Link href="/account" className="hover:underline">ACCOUNT</Link>
+              ) : (
+                <button type="button" onClick={() => openAuth("login")} className="hover:underline">ACCOUNT</button>
+              )}
             </div>
             <div className="flex items-center gap-[max(20px,1.38vw)]">
               <IconButton label="Search" icon={icons.search} onClick={() => setSearchOpen(true)} className="h-[max(40px,2.77vw)] w-[max(40px,2.77vw)] p-[max(8px,0.55vw)]" />
@@ -82,6 +89,7 @@ export function DesktopHeader() {
 
 export function MobileHeader({ onMenu }: { onMenu?: () => void }) {
   const { openCart, itemCount } = useCart();
+  const { user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -93,7 +101,7 @@ export function MobileHeader({ onMenu }: { onMenu?: () => void }) {
         </Link>
         <div className="flex items-center">
           <IconButton label="Search" icon={icons.search} onClick={() => setSearchOpen(true)} />
-          <Link href="/account"><IconButton label="Account" icon={icons.account} /></Link>
+          <Link href={user ? "/account" : "/login"}><IconButton label="Account" icon={icons.account} /></Link>
           <button type="button" onClick={openCart} className="relative inline-flex size-10 items-center justify-center" aria-label="Open cart">
             <Image src={icons.cart} alt="" width={24} height={24} />
             {itemCount > 0 ? <span className="absolute right-1 top-1 size-2 rounded-full bg-black" /> : null}
@@ -115,6 +123,7 @@ const sidebarLinks = [
 ];
 
 export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: () => void }) {
+  const { user } = useAuth();
   if (!open) return null;
   return (
     <aside className="fixed inset-y-0 left-0 z-50 w-[310px] max-w-[86vw] bg-white shadow-xl" aria-label="Mobile menu">
@@ -125,7 +134,7 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
       <div className="px-5 py-5 text-[14px] tracking-[0.56px]">
         <div className="mb-7 flex justify-between">
           <span>INR</span>
-          <Link href="/account" onClick={onClose}>ACCOUNT</Link>
+          <Link href={user ? "/account" : "/login"} onClick={onClose}>ACCOUNT</Link>
         </div>
         <nav className="flex flex-col gap-5" aria-label="Mobile navigation">
           {sidebarLinks.map((item) => (
@@ -254,6 +263,7 @@ export function ResponsiveShell({ children }: { children: React.ReactNode }) {
       {children}
       <MobileStickyNav />
       <CartPopout open={isOpen} items={cartProducts} onClose={closeCart} onRemove={removeItem} />
+      <AuthModal />
     </>
   );
 }

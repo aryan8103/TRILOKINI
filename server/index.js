@@ -35,6 +35,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const pricingRoutes = require('./routes/pricingRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const customOrderRoutes = require('./routes/customOrderRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Basic Route
 app.get('/api/health', (req, res) => {
@@ -54,6 +55,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/custom-orders', customOrderRoutes);
+app.use('/api/auth', authRoutes);
 
 const startServer = async () => {
   await connectDB();

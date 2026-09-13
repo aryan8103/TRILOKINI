@@ -25,7 +25,9 @@ export type Product = {
   description?: string;
   shippingInfo?: string;
   disclaimer?: string;
+  supplierInfo?: string;
   customTailoringEnabled?: boolean;
+  customTailoringPrice?: number;
   isBespoke?: boolean;
   addons?: ProductAddon[];
 };

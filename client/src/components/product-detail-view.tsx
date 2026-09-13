@@ -128,6 +128,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
   const [customTailoredOpen, setCustomTailoredOpen] = useState(defaultCustomTailoredOpen ?? false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSupplierInfo, setShowSupplierInfo] = useState(false);
 
   const colorVariants = product.variants?.length
     ? product.variants
@@ -138,8 +139,12 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
     ? activeVariant.images.map(resolveImage)
     : [resolveImage(product.imageUrl)];
 
-  const sizes = product.sizes ?? ALL_SIZES;
-  const bottomSizes = product.bottomSizes ?? sizes;
+  const sizes = product.sizes?.filter((s) => s.trim() !== "").length 
+    ? product.sizes.filter((s) => s.trim() !== "") 
+    : ALL_SIZES;
+  const bottomSizes = product.bottomSizes?.filter((s) => s.trim() !== "").length 
+    ? product.bottomSizes.filter((s) => s.trim() !== "") 
+    : sizes;
   const price = activeVariant.currentPrice ?? product.currentPrice;
   const related = relatedProducts.map(productToCard);
   const carouselSections = [
@@ -264,8 +269,8 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
 
           <div>
             <p className="mb-3 text-[13px] font-semibold tracking-[0.65px]">
-              Select Kurta Size{" "}
-              <button type="button" className="text-action underline-offset-2 hover:underline">Size Guide</button>
+              Select Your Size{" "}
+              <button type="button" className="text-action underline-offset-2 ">Size Guide</button>
             </p>
             <button
               type="button"
@@ -281,7 +286,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
                   key={size}
                   size={size}
                   selected={selectedSize === size}
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => setSelectedSize(selectedSize === size ? undefined : size)}
                   lowStock={isLowStock(size)}
                   disabled={isOutOfStock(size)}
                 />
@@ -293,7 +298,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
                 onClick={() => setCustomTailoredOpen(true)}
                 className="mt-3 inline-block text-[12px] font-semibold tracking-[0.6px] underline underline-offset-2"
               >
-                CUSTOM TAILORING
+                CUSTOM TAILORING {product.customTailoringPrice ? `(+ ${formatPrice(product.customTailoringPrice)})` : ""}
               </button>
             ) : null}
           </div>
@@ -303,7 +308,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
               type="button"
               disabled={loading}
               onClick={() => handleAction(onBuyNow)}
-              className="h-10 border border-black bg-white text-[13px] font-semibold tracking-[0.65px] hover:bg-gray-50 disabled:opacity-50"
+              className="h-10 border border-black bg-black text-[13px] font-semibold tracking-[0.65px] text-white hover:bg-gray-900 disabled:opacity-50"
             >
               BUY NOW
             </button>
@@ -311,7 +316,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
               type="button"
               disabled={loading}
               onClick={() => handleAction(onAddToCart)}
-              className="h-10 border border-black bg-black text-[13px] font-semibold tracking-[0.65px] text-white hover:bg-action disabled:opacity-50"
+              className="h-10 border border-black bg-white text-[13px] font-semibold tracking-[0.65px] hover:bg-gray-50 disabled:opacity-50"
             >
               ADD TO CART
             </button>
@@ -319,44 +324,29 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
 
           {error ? <p className="mt-2 text-[12px] text-sale">{error}</p> : null}
 
-          <div className="mt-5 grid grid-cols-2 gap-2 lg:hidden">
-            <div className="border border-gray-light p-3 text-[11px] leading-4 tracking-[0.44px]">
-              <strong className="block font-semibold">Express Delivery</strong>
-              Delivered within 3-4 days in India
-            </div>
-            <button
-              type="button"
-              onClick={() => setCustomTailoredOpen(true)}
-              className="border border-gray-light p-3 text-left text-[11px] leading-4 tracking-[0.44px]"
-            >
-              <strong className="block font-semibold">Customization</strong>
-              Get it Tailored just for you
-            </button>
-          </div>
-
           {product.addons?.length ? (
             <div className="mt-8 border-t border-gray-light pt-6">
-              <p className="mb-4 text-[13px] font-semibold tracking-[0.65px]">ADD ONS</p>
-              <div className="space-y-4">
+              <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.65px]">ADD ONS</p>
+              <div className="space-y-3">
                 {product.addons.map((addon) => (
-                  <div key={addon.id} className="border-b border-gray-light pb-4">
+                  <div key={addon.id}>
                     <div className="flex items-center justify-between">
-                      <label className="flex cursor-pointer items-center gap-2 text-[13px] font-medium">
+                      <label className="flex cursor-pointer items-center gap-3 text-[12px] text-gray hover:text-black">
                         <input
                           type="checkbox"
                           checked={!!selectedAddons[addon.id]?.selected}
                           onChange={() => toggleAddon(addon)}
-                          className="size-3 accent-black"
+                          className="size-3.5 accent-black border-gray-light"
                         />
                         {addon.name}
                       </label>
-                      <span className="text-[13px] text-gray">{formatPrice(addon.price)}</span>
+                      <span className="text-[12px] text-black">{formatPrice(addon.price)}</span>
                     </div>
                     {addon.hasSizes && selectedAddons[addon.id]?.selected ? (
-                      <div className="mt-3">
-                        <p className="mb-2 text-[12px] font-semibold tracking-[0.6px]">
+                      <div className="mt-3 ml-6 pb-2 border-b border-gray-light/50 last:border-0">
+                        <p className="mb-2 text-[11px] font-semibold tracking-[0.6px]">
                           Select Bottom Size{" "}
-                          <span className="text-action">Size Guide</span>
+                          <span className="text-action ml-1 hover:underline cursor-pointer">Size Guide</span>
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {(addon.sizes ?? bottomSizes).map((s) => (
@@ -367,21 +357,16 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
                               onClick={() =>
                                 setSelectedAddons((prev) => ({
                                   ...prev,
-                                  [addon.id]: { ...prev[addon.id], selected: true, size: s },
+                                  [addon.id]: { 
+                                    ...prev[addon.id], 
+                                    selected: true, 
+                                    size: prev[addon.id]?.size === s ? undefined : s 
+                                  },
                                 }))
                               }
                             />
                           ))}
                         </div>
-                        {product.customTailoringEnabled ? (
-                          <button
-                            type="button"
-                            onClick={() => setCustomTailoredOpen(true)}
-                            className="mt-2 inline-block text-[11px] font-semibold tracking-[0.55px] underline underline-offset-2"
-                          >
-                            CUSTOM TAILORING
-                          </button>
-                        ) : null}
                       </div>
                     ) : null}
                   </div>
@@ -390,36 +375,52 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
             </div>
           ) : null}
 
-          <div className="mt-6 border-t border-gray-light">
-            <Accordion title="PRODUCT DESCRIPTION" defaultOpen>
-              <p className="text-[13px] leading-6 text-gray">
-                {product.description || product.subtitle || "Featuring exquisite craftsmanship and contemporary design for celebratory occasions."}
+          <div className="mt-8 border-t border-gray-light">
+            <div className="grid grid-cols-[5fr_4fr] gap-6 py-6">
+              <div>
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.6px]">Product Description</h3>
+                <p className="text-[12px] leading-5 text-gray">
+                  {product.description || product.subtitle || "Featuring exquisite craftsmanship and contemporary design for celebratory occasions."}
+                </p>
+              </div>
+              <div>
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.6px]">Product Code</h3>
+                <p className="text-[12px] leading-5 text-gray">
+                  {product.productCode || "DRZC032204"}<br />
+                  {product.supplierInfo ? (
+                    <button 
+                      type="button" 
+                      onClick={() => setShowSupplierInfo(!showSupplierInfo)}
+                      className="mt-1 text-sale hover:underline"
+                    >
+                      {showSupplierInfo ? "Hide Supplier Information" : "View Supplier Information"}
+                    </button>
+                  ) : null}
+                </p>
+                {showSupplierInfo && product.supplierInfo ? (
+                  <div className="mt-3 bg-gray-50 p-3 text-[11px] leading-5 text-gray border border-gray-light">
+                    {product.supplierInfo}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="border-t border-gray-light py-6">
+              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.6px]">Shipping Information</h3>
+              <p className="text-[12px] leading-5 text-gray">
+                {product.shippingInfo || "This product will be shipped to you after 3-4 weeks from the date of order placed. All custom made orders are not returnable."}
               </p>
-              {product.productCode ? (
-                <div className="mt-4 text-right text-[13px] text-gray">
-                  <p>{product.productCode}</p>
-                  <button type="button" className="text-action hover:underline">View Supplier Information</button>
-                </div>
-              ) : null}
-            </Accordion>
-            <Accordion title="SIZE & FIT">
-              <p className="text-[13px] leading-6 text-gray">
-                Refer to our size guide for accurate measurements. Custom tailoring available for a perfect fit.
+            </div>
+
+            <div className="border-b border-t border-gray-light py-6">
+              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.6px]">Disclaimer</h3>
+              <p className="text-[12px] leading-5 text-gray">
+                {product.disclaimer || "This product will be exclusively handcrafted for you, making the colour/texture/pattern slightly vary from the image shown, due to multiple artisan-led techniques and processes involved."}
               </p>
-            </Accordion>
-            <Accordion title="DELIVERY, PACKAGING & RETURNS">
-              <p className="text-[13px] leading-6 text-gray">
-                {product.shippingInfo || "This product will be shipped to you after 3-4 weeks from the date of order placed."}
-              </p>
-            </Accordion>
-            <Accordion title="DISCLAIMER">
-              <p className="text-[13px] leading-6 text-gray">
-                {product.disclaimer || "This product will be exclusively handcrafted for you."}
-              </p>
-            </Accordion>
+            </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-2 lg:grid-cols-3">
             {[
               { title: "Customisations", sub: "Same style in a bespoke colour" },
               { title: "Worldwide Shipping", sub: "Delivered to your doorstep" },
@@ -427,10 +428,15 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
               { title: "Secure Payments", sub: "100% safe transactions" },
               { title: "Easy Returns", sub: "On ready-to-ship items" },
               { title: "Expert Styling", sub: "Personal styling assistance" },
-            ].map((badge) => (
-              <div key={badge.title} className="border border-gray-light p-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.44px]">{badge.title}</p>
-                <p className="mt-1 text-[10px] leading-4 text-gray">{badge.sub}</p>
+            ].map((badge, idx) => (
+              <div key={idx} className="flex items-start gap-2 border border-gray-light p-2.5">
+                <div className="mt-0.5 flex shrink-0 items-center justify-center">
+                  <Image src="/icons/icon-custom.png" width={12} height={12} alt="" className="opacity-70 object-contain h-3 w-3" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-black">{badge.title}</p>
+                  <p className="mt-0.5 text-[9px] leading-3 text-gray">{badge.sub}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -456,6 +462,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
         price={price}
         stockBySize={product.stockBySize}
         customTailoringEnabled={product.customTailoringEnabled}
+        customTailoringPrice={product.customTailoringPrice}
         onSelectSize={setSelectedSize}
         onOpenCustomTailored={() => setCustomTailoredOpen(true)}
       />

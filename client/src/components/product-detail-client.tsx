@@ -42,8 +42,8 @@ export function ProductDetailClient({ product, relatedProducts }: { product: Pro
 
   const handleBuyNow = async (payload: AddToCartPayload) => {
     const item = await buildCartItem(payload);
-    addItem(item);
-    router.push("/cart");
+    sessionStorage.setItem("buyNowItem", JSON.stringify(item));
+    router.push("/checkout?buyNow=1");
   };
 
   return (

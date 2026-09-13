@@ -88,7 +88,7 @@ export function CartPageView() {
                 <span>TOTAL PAYABLE</span>
                 <span>{formatPrice(cart.summary.total)}</span>
               </div>
-              <button type="button" className="mt-4 h-12 w-full bg-black text-[13px] font-semibold tracking-[0.65px] text-white">PROCEED TO CHECKOUT</button>
+              <Link href="/checkout" className="mt-4 flex h-12 w-full items-center justify-center bg-black text-[13px] font-semibold tracking-[0.65px] text-white">PROCEED TO CHECKOUT</Link>
               <Link href="/products" className="mt-3 flex h-12 w-full items-center justify-center border border-black text-[13px] font-semibold tracking-[0.65px]">
                 CONTINUE SHOPPING
               </Link>

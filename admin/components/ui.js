@@ -17,16 +17,16 @@ export function Pill({ children, tone = "info" }) {
   return <span className={`admin-badge ${cls}`}>{children}</span>;
 }
 
-export function PageToolbar({ title, description, action }) {
+export function PageToolbar({ title, description, children, action }) {
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 className="text-2xl font-bold text-white">{title}</h1>
         {description && <p className="text-sm text-[var(--text-muted)] mt-0.5">{description}</p>}
       </div>
-      {action && (
+      {(children || action) && (
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          {action}
+          {children || action}
         </div>
       )}
     </div>

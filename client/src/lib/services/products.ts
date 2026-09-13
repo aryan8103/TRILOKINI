@@ -42,7 +42,9 @@ function apiToProduct(p: ApiProduct): Product {
     description: p.description || p.subtitle,
     shippingInfo: p.shippingInfo || "This product will be shipped to you after 3-4 weeks from the date of order placed. All custom made orders are not returnable.",
     disclaimer: p.disclaimer || "This product will be exclusively handcrafted for you, making the colour/texture/pattern slightly vary from the image shown, due to multiple artisan-led techniques and processes involved.",
+    supplierInfo: p.supplierInfo,
     customTailoringEnabled: p.customTailoringEnabled ?? true,
+    customTailoringPrice: p.customTailoringPrice || 0,
     addons: p.addons?.map((a) => ({
       id: a._id || a.name,
       name: a.name,

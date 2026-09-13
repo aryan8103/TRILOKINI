@@ -3,6 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Cart, CartLineItem } from "@/lib/types";
 
+import { useAuth } from "./auth-provider";
+
 const STORAGE_KEY = "trilokini-cart";
 
 type CartContextValue = {
@@ -34,23 +36,54 @@ function computeSummary(items: CartLineItem[], discount = 0): Cart["summary"] {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [cart, setCart] = useState<Cart>(emptyCart);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setCart(JSON.parse(stored));
+      const anonCartStr = localStorage.getItem(STORAGE_KEY);
+      let anonCart = anonCartStr ? JSON.parse(anonCartStr) : null;
+      
+      const userKey = user ? `${STORAGE_KEY}-${user.id}` : STORAGE_KEY;
+      const stored = localStorage.getItem(userKey);
+      let parsed = stored ? JSON.parse(stored) : null;
+
+      if (user && anonCart && anonCart.items && anonCart.items.length > 0) {
+        if (parsed) {
+          const newItems = [...parsed.items];
+          for (const item of anonCart.items) {
+             const existing = newItems.find((i: CartLineItem) => i.productId === item.productId && i.size === item.size);
+             if (existing) {
+               existing.quantity += item.quantity;
+             } else {
+               newItems.push(item);
+             }
+          }
+          parsed.items = newItems;
+          parsed.summary = computeSummary(newItems, parsed.summary.discount);
+        } else {
+          parsed = anonCart;
+        }
+        localStorage.setItem(userKey, JSON.stringify(parsed));
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      
+      if (parsed) setCart(parsed);
+      else setCart(emptyCart);
     } catch {
       // ignore
     }
     setHydrated(true);
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-  }, [cart, hydrated]);
+    if (hydrated) {
+      const userKey = user ? `${STORAGE_KEY}-${user.id}` : STORAGE_KEY;
+      localStorage.setItem(userKey, JSON.stringify(cart));
+    }
+  }, [cart, hydrated, user?.id]);
 
   const addItem = useCallback((item: Omit<CartLineItem, "id" | "quantity"> & { quantity?: number }) => {
     setCart((prev) => {

@@ -118,129 +118,98 @@ export function CustomTailoredForm({ productId, productTitle, color, colorIndex 
           <X size={18} />
         </button>
         <p className="text-[12px] font-normal uppercase tracking-[0.6px] lg:text-[14px]">Custom Tailored</p>
-        <div className="ml-auto flex items-center gap-3 text-[9px] font-medium tracking-[0.45px] text-black/70 lg:text-[11px]">
-          <span className="text-black/50">Choose Your Units:</span>
-          <button
-            type="button"
-            onClick={() => setUnit("inches")}
-            className={unit === "inches" ? "text-black" : "text-black/40"}
-          >
-            in
-          </button>
-          <button
-            type="button"
-            onClick={() => setUnit(unit === "inches" ? "cms" : "inches")}
-            className={`relative h-[11px] w-[18px] rounded-full transition-colors ${unit === "cms" ? "bg-black" : "bg-gray-light"}`}
-            aria-label="Toggle unit"
-          >
-            <span className={`absolute top-[2px] size-[7px] rounded-full bg-white transition-all ${unit === "cms" ? "left-[9px]" : "left-[2px]"}`} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setUnit("cms")}
-            className={unit === "cms" ? "text-black" : "text-black/40"}
-          >
-            cms
-          </button>
-        </div>
       </div>
 
       <p className="mb-4 text-[9px] font-medium tracking-[0.45px] text-black lg:text-[12px]">
         Tell us your body measurements
       </p>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid gap-6 lg:grid-cols-[1fr_1fr_auto] lg:gap-8">
-          <div className="grid grid-cols-2 gap-x-3 gap-y-3 lg:col-span-2 lg:grid-cols-2 lg:gap-x-6">
-            <div className="space-y-3">
+      <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row lg:gap-16">
+        <div className="flex-1">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-4 lg:gap-x-6 lg:gap-y-5">
+            <div className="space-y-4 lg:space-y-5">
               {LEFT_FIELDS.map(({ key, label }) => (
-                <label key={key} className="block">
-                  <span className="mb-1 block text-[9px] font-medium tracking-[0.45px] text-black/40 lg:text-[11px]">{label}</span>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={measurements[key] ?? ""}
-                    onChange={(e) => handleField(key, e.target.value)}
-                    className="h-[29px] w-full border border-[rgba(117,117,117,0.6)] bg-transparent px-2 text-[12px] outline-none focus:border-black lg:h-[36px]"
-                  />
-                </label>
+                <input
+                  key={key}
+                  type="number"
+                  step="0.1"
+                  placeholder={label}
+                  value={measurements[key] ?? ""}
+                  onChange={(e) => handleField(key, e.target.value)}
+                  className="h-[36px] w-full border border-[rgba(117,117,117,0.4)] bg-transparent px-3 text-[12px] placeholder:text-black/40 outline-none focus:border-black lg:h-[44px] lg:text-[13px]"
+                />
               ))}
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4 lg:space-y-5">
               {RIGHT_FIELDS.map(({ key, label }) => (
-                <label key={key} className="block">
-                  <span className="mb-1 block text-[9px] font-medium tracking-[0.45px] text-black/40 lg:text-[11px]">{label}</span>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={measurements[key] ?? ""}
-                    onChange={(e) => handleField(key, e.target.value)}
-                    className="h-[29px] w-full border border-[rgba(117,117,117,0.6)] bg-transparent px-2 text-[12px] outline-none focus:border-black lg:h-[36px]"
-                  />
-                </label>
+                <input
+                  key={key}
+                  type="number"
+                  step="0.1"
+                  placeholder={label}
+                  value={measurements[key] ?? ""}
+                  onChange={(e) => handleField(key, e.target.value)}
+                  className="h-[36px] w-full border border-[rgba(117,117,117,0.4)] bg-transparent px-3 text-[12px] placeholder:text-black/40 outline-none focus:border-black lg:h-[44px] lg:text-[13px]"
+                />
               ))}
             </div>
           </div>
 
-          <div className="flex justify-center lg:row-span-1">
-            <div className="relative h-[280px] w-[160px] shrink-0 sm:h-[360px] sm:w-[200px] lg:h-[480px] lg:w-[220px]">
-              <Image
-                src={CUSTOM_TAILORED_GUIDE_IMAGE}
-                alt="Women custom tailored measurement guide"
-                fill
-                className="object-contain object-top"
-                sizes="220px"
-                priority
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <p className="mb-3 text-[9px] font-medium tracking-[0.45px] text-black/70 lg:text-[12px]">Your Contact Details</p>
-          <div className="space-y-3 lg:max-w-xl">
-            <label className="block">
-              <span className="mb-1 block text-[9px] font-medium tracking-[0.45px] text-black/40 lg:text-[11px]">Email ID</span>
+          <div className="mt-10 lg:mt-12">
+            <p className="mb-4 text-[9px] font-medium tracking-[0.45px] text-black/70 lg:text-[12px]">Your Contact Details</p>
+            <div className="grid grid-cols-2 gap-x-3 lg:gap-x-6">
               <input
                 type="email"
                 required
+                placeholder="Email ID"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-[30px] w-full border border-[rgba(117,117,117,0.6)] bg-transparent px-2 text-[12px] outline-none focus:border-black lg:h-[40px]"
+                className="h-[36px] w-full border border-[rgba(117,117,117,0.4)] bg-transparent px-3 text-[12px] placeholder:text-black/40 outline-none focus:border-black lg:h-[44px] lg:text-[13px]"
               />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-[9px] font-medium tracking-[0.45px] text-black/40 lg:text-[11px]">Mobile Number</span>
               <input
                 type="tel"
                 required
+                placeholder="Mobile Number"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                className="h-[30px] w-full border border-[rgba(117,117,117,0.6)] bg-transparent px-2 text-[12px] outline-none focus:border-black lg:h-[40px]"
+                className="h-[36px] w-full border border-[rgba(117,117,117,0.4)] bg-transparent px-3 text-[12px] placeholder:text-black/40 outline-none focus:border-black lg:h-[44px] lg:text-[13px]"
               />
-            </label>
+            </div>
           </div>
+
+          <label className="mt-8 flex cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              checked={confirmed}
+              onChange={(e) => setConfirmed(e.target.checked)}
+              className="size-[13px] border border-black accent-black"
+            />
+            <span className="text-[11px] text-black lg:text-[13px]">All the above details are correct</span>
+          </label>
+
+          {error ? <p className="mt-4 text-[13px] text-sale">{error}</p> : null}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-8 h-[40px] w-full bg-black text-[13px] font-semibold tracking-[0.65px] text-white disabled:opacity-50 sm:max-w-md lg:h-[48px] lg:text-[14px]"
+          >
+            {submitting ? "SUBMITTING..." : "SUBMIT"}
+          </button>
         </div>
 
-        <label className="mt-6 flex cursor-pointer items-center gap-2">
-          <input
-            type="checkbox"
-            checked={confirmed}
-            onChange={(e) => setConfirmed(e.target.checked)}
-            className="size-[11px] border border-black accent-black"
-          />
-          <span className="text-[9px] tracking-[0.27px] text-black lg:text-[12px]">All the above details are correct</span>
-        </label>
-
-        {error ? <p className="mt-3 text-[12px] text-sale">{error}</p> : null}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="mt-6 h-[32px] w-full bg-black text-[12px] font-semibold tracking-[0.6px] text-white disabled:opacity-50 sm:max-w-md lg:h-[44px] lg:text-[14px]"
-        >
-          {submitting ? "SUBMITTING..." : "SUBMIT"}
-        </button>
+        <div className="mt-8 flex justify-center lg:mt-0 lg:w-[45%] lg:shrink-0 lg:justify-end">
+          <div className="relative h-[400px] w-full max-w-[300px] sm:h-[500px] lg:h-[800px] lg:max-w-[500px]">
+            <Image
+              src={CUSTOM_TAILORED_GUIDE_IMAGE}
+              alt="Women custom tailored measurement guide"
+              fill
+              className="object-contain object-top"
+              sizes="(min-width: 1024px) 500px, 300px"
+              priority
+            />
+          </div>
+        </div>
       </form>
     </div>
   );

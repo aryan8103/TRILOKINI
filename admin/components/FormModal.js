@@ -46,10 +46,10 @@ function AddonsEditor({ value = [], onChange }) {
               <input
                 className="admin-input"
                 placeholder="XS, S, M, L, XL"
-                value={(addon.sizes || []).join(", ")}
+                value={typeof addon.sizes === "string" ? addon.sizes : (addon.sizes || []).join(", ")}
                 onChange={(e) => {
                   const next = [...addons];
-                  next[index] = { ...addon, sizes: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) };
+                  next[index] = { ...addon, sizes: e.target.value };
                   onChange(next);
                 }}
               />
@@ -105,7 +105,20 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
       if (field.type === "number" && (sanitizedData[field.name] === "" || sanitizedData[field.name] === undefined)) {
         delete sanitizedData[field.name];
       }
+      if (field.type === "tags" && typeof sanitizedData[field.name] === "string") {
+        sanitizedData[field.name] = sanitizedData[field.name].split(",").map((t) => t.trim()).filter(Boolean);
+      }
     });
+
+    if (sanitizedData.addons && Array.isArray(sanitizedData.addons)) {
+      sanitizedData.addons = sanitizedData.addons.map(addon => {
+        if (typeof addon.sizes === "string") {
+          return { ...addon, sizes: addon.sizes.split(",").map(s => s.trim()).filter(Boolean) };
+        }
+        return addon;
+      });
+    }
+
     try {
       await onSubmit(sanitizedData);
       onClose();
@@ -145,9 +158,9 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
           <input
             type="text"
             required={field.required}
-            value={(formData[field.name] || []).join(", ")}
+            value={Array.isArray(formData[field.name]) ? formData[field.name].join(", ") : (formData[field.name] || "")}
             placeholder={field.placeholder || "trending, new"}
-            onChange={(e) => handleChange(field.name, e.target.value.split(",").map((t) => t.trim()).filter(Boolean))}
+            onChange={(e) => handleChange(field.name, e.target.value)}
             className="admin-input"
           />
           <p className="text-xs text-[var(--text-muted)] mt-1.5">Comma separated list of tags</p>
@@ -241,7 +254,12 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
 
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 custom-scrollbar">
               <form id="admin-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
-                {fields.map((field) => (
+                {fields.filter(f => {
+                  if (f.name === "customTailoringPrice") {
+                    return !!formData.customTailoringEnabled;
+                  }
+                  return true;
+                }).map((field) => (
                   <div key={field.name} className="flex flex-col">
                     <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5">
                       {field.label} {field.required && <span className="text-[var(--danger)]">*</span>}

@@ -10,6 +10,7 @@ type Props = {
   price: number;
   stockBySize?: Record<string, number>;
   customTailoringEnabled?: boolean;
+  customTailoringPrice?: number;
   onSelectSize: (size: string) => void;
   onOpenCustomTailored?: () => void;
 };
@@ -21,6 +22,7 @@ export function SizeSelectModal({
   price,
   stockBySize,
   customTailoringEnabled,
+  customTailoringPrice,
   onSelectSize,
   onOpenCustomTailored,
 }: Props) {
@@ -71,8 +73,8 @@ export function SizeSelectModal({
                 onClick={handleCustom}
                 className="flex w-full items-center justify-between px-4 py-4 text-[13px] font-medium tracking-[0.65px]"
               >
-                <span>Custom Tailored</span>
-                <span className="text-gray">{formatPrice(price)}</span>
+                <span>Custom Tailored {customTailoringPrice ? `(+ ${formatPrice(customTailoringPrice)})` : ""}</span>
+                <span className="text-gray">{formatPrice(price + (customTailoringPrice || 0))}</span>
               </button>
             </li>
           ) : null}

@@ -59,7 +59,10 @@ export default function ProductsPage() {
     {
       key: "imageUrl",
       label: "Image",
-      render: (val) => val ? <img src={resolveImage(val)} alt="" className="h-12 w-12 rounded-lg object-cover object-top" /> : <EmptyThumb />,
+      render: (val, row) => {
+        const img = val || row.variants?.[0]?.images?.[0];
+        return img ? <img src={resolveImage(img)} alt="" className="h-12 w-12 rounded-lg object-cover object-top" /> : <EmptyThumb />;
+      },
     },
     { key: "title", label: "Title", render: (val, row) => <div><p className="font-medium text-white">{val}</p><p className="text-xs" style={{ color: "var(--text-muted)" }}>{row.category?.title}</p></div> },
     { key: "designerName", label: "Designer", render: (val) => val || "—" },
@@ -71,18 +74,21 @@ export default function ProductsPage() {
   const formFields = [
     { name: "category", label: "Category", type: "select", options: categories.map((c) => ({ label: c.title, value: c._id })), required: true },
     { name: "title", label: "Title", type: "text", required: true },
+    { name: "imageUrl", label: "Primary image", type: "image", aspectRatio: 336 / 505 },
     { name: "subtitle", label: "Subtitle", type: "text" },
     { name: "designerName", label: "Designer name", type: "text" },
     { name: "productCode", label: "Product code", type: "text" },
     { name: "description", label: "Description", type: "textarea" },
     { name: "shippingInfo", label: "Shipping information", type: "textarea" },
     { name: "disclaimer", label: "Disclaimer", type: "textarea" },
+    { name: "supplierInfo", label: "Supplier information", type: "textarea" },
     { name: "tags", label: "Tags", type: "tags", placeholder: "trending, new" },
     { name: "variants", label: "Color variants & pricing", type: "variants" },
     { name: "sizes", label: "Sizes", type: "text", placeholder: "XS, S, M, L, XL" },
     { name: "bottomSizes", label: "Bottom sizes", type: "text" },
     { name: "addons", label: "Add-ons", type: "addons" },
     { name: "customTailoringEnabled", label: "Custom tailoring enabled", type: "toggle" },
+    { name: "customTailoringPrice", label: "Custom tailoring price (₹)", type: "number" },
     { name: "showInHomePage", label: "Show on homepage", type: "toggle" },
     { name: "homePageOrder", label: "Homepage order", type: "number" },
   ];

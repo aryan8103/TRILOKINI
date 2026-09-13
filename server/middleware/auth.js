@@ -1,4 +1,5 @@
 const { getFirebaseAdmin } = require('../config/firebaseAdmin');
+const { getAuth } = require('firebase-admin/auth');
 
 async function requireAuth(req, res, next) {
   try {
@@ -9,11 +10,13 @@ async function requireAuth(req, res, next) {
     }
 
     const admin = getFirebaseAdmin();
-    const decoded = await admin.auth().verifyIdToken(token);
+    const app = admin.getApp();
+    const decoded = await getAuth(app).verifyIdToken(token);
     req.firebaseUser = decoded;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Invalid or expired session' });
+    console.error("Firebase auth error:", error);
+    res.status(401).json({ message: error.message || 'Invalid or expired session' });
   }
 }
 

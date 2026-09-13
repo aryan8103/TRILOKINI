@@ -53,6 +53,7 @@ const productSchema = new mongoose.Schema({
   description: { type: String },
   shippingInfo: { type: String },
   disclaimer: { type: String },
+  supplierInfo: { type: String },
   sizes: [{ type: String }],
   bottomSizes: [{ type: String }],
   stockBySize: {
@@ -62,13 +63,14 @@ const productSchema = new mongoose.Schema({
   },
   addons: [addonSchema],
   customTailoringEnabled: { type: Boolean, default: true },
+  customTailoringPrice: { type: Number, default: 0 },
   tags: [{ type: String, trim: true }],
   showInHomePage: { type: Boolean, default: false },
   homePageOrder: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
-productSchema.pre('save', function(next) {
+productSchema.pre('save', function() {
   if (this.previousPrice && this.currentPrice && this.previousPrice > this.currentPrice) {
     this.discountPercentage = Math.round(((this.previousPrice - this.currentPrice) / this.previousPrice) * 100);
   }
@@ -88,8 +90,6 @@ productSchema.pre('save', function(next) {
       this.imageUrl = primaryVariant.images[0];
     }
   }
-
-  next();
 });
 
 module.exports = mongoose.model('Product', productSchema);

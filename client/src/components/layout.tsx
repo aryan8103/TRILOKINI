@@ -31,8 +31,8 @@ export function DesktopHeader() {
   return (
     <>
       <header className="hidden bg-white lg:block" aria-label="Desktop header">
-        <div className="relative flex h-[max(31px,2.15vw)] items-center justify-center bg-[#EAEAEA] text-[length:max(12px,0.83vw)] font-medium tracking-[0.36px] text-gray">
-          <nav className="flex gap-[max(32px,2.22vw)]" aria-label="Utility navigation">
+        <div className="relative flex h-[31px] items-center justify-center bg-[#EAEAEA] text-[12px] font-medium tracking-[0.36px] text-gray">
+          <nav className="flex gap-8" aria-label="Utility navigation">
             {utilityNav.map((item) => (
               <Link
                 key={item.href}
@@ -41,21 +41,21 @@ export function DesktopHeader() {
               >
                 {item.label}
                 {pathname.startsWith(item.href) && item.href !== "/" ? (
-                  <span className="absolute -bottom-[max(6px,0.42vw)] left-1/2 h-[2px] w-[100px] -translate-x-1/2 bg-black" />
+                  <span className="absolute -bottom-1.5 left-1/2 h-[2px] w-[100px] -translate-x-1/2 bg-black" />
                 ) : null}
               </Link>
             ))}
           </nav>
         </div>
-        <div className="relative h-[max(113px,7.84vw)] border-b border-gray-light shadow-[0_1px_4px_rgba(0,0,0,0.13)]">
-          <Link href="/" className="absolute left-1/2 top-[max(39px,2.7vw)] -translate-x-1/2 -translate-y-1/2">
-            <Image src="/logos/trilokini-header.png" alt="Trilokini" width={182} height={139} className="h-[max(60px,4.16vw)] w-[max(80px,5.55vw)] object-contain" priority />
+        <div className="relative h-[142px] border-b border-gray-light shadow-[0_1px_4px_rgba(0,0,0,0.13)]">
+          <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Image src="/logos/trilokini-header.png" alt="Trilokini" width={182} height={139} className="h-[139px] w-[182px] object-contain" priority />
           </Link>
-          <div className="flex h-[max(78px,5.41vw)] w-full items-center justify-between px-[max(40px,2.77vw)] text-[length:max(14px,0.97vw)] font-medium tracking-[0.56px]">
-            <div className="flex items-center gap-[max(40px,2.77vw)]">
-              <div className="flex items-center gap-[max(8px,0.55vw)]">
+          <div className="flex h-[104px] w-full items-center justify-between px-10 text-[14px] font-medium tracking-[0.56px]">
+            <div className="flex items-center gap-10">
+              <div className="flex items-center gap-2">
                 <span>INR</span>
-                <Image src={icons.sort} alt="" width={10} height={10} className="h-[max(10px,0.69vw)] w-[max(10px,0.69vw)]" />
+                <Image src={icons.sort} alt="" width={10} height={10} className="h-2.5 w-2.5" />
               </div>
               {user ? (
                 <Link href="/account" className="hover:underline">ACCOUNT</Link>
@@ -63,17 +63,19 @@ export function DesktopHeader() {
                 <button type="button" onClick={() => openAuth("login")} className="hover:underline">ACCOUNT</button>
               )}
             </div>
-            <div className="flex items-center gap-[max(20px,1.38vw)]">
-              <IconButton label="Search" icon={icons.search} onClick={() => setSearchOpen(true)} className="h-[max(40px,2.77vw)] w-[max(40px,2.77vw)] p-[max(8px,0.55vw)]" />
-              <button type="button" onClick={openCart} className="relative inline-flex h-[max(40px,2.77vw)] w-[max(40px,2.77vw)] items-center justify-center p-[max(8px,0.55vw)]" aria-label="Open cart">
-                <Image src={icons.cart} alt="" width={24} height={24} className="size-full object-contain" />
+            <div className="flex items-center gap-14">
+              <button type="button" onClick={() => setSearchOpen(true)} className="inline-flex size-6 items-center justify-center" aria-label="Search">
+                <Image src={icons.search} alt="" width={24} height={24} className="size-6 object-contain" />
+              </button>
+              <button type="button" onClick={openCart} className="relative inline-flex size-6 items-center justify-center" aria-label="Open cart">
+                <Image src={icons.cart} alt="" width={24} height={24} className="size-6 object-contain" />
                 {itemCount > 0 ? (
-                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">{itemCount}</span>
+                  <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">{itemCount}</span>
                 ) : null}
               </button>
             </div>
           </div>
-          <nav className="absolute bottom-0 left-1/2 flex w-[max(933px,64.79vw)] -translate-x-1/2 justify-between px-[max(20px,1.38vw)] pb-[max(8px,0.55vw)] text-[length:max(13px,0.9vw)] font-medium tracking-[0.36px]" aria-label="Category navigation">
+          <nav className="absolute bottom-0 left-1/2 flex w-full max-w-[1206px] -translate-x-1/2 justify-between px-5 pb-[11px] text-[13px] font-medium tracking-[0.36px]" aria-label="Category navigation">
             {categoryNav.map((item) => (
               <Link key={item.href} href={item.href} className={item.highlight ? "text-sale-nav" : "hover:text-gray"}>
                 {item.label}

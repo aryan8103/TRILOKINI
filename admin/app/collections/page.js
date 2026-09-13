@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getCollections, createCollection, updateCollection, deleteCollection } from "../../api";
 import DataTable from "../../components/DataTable";
 import FormModal from "../../components/FormModal";
+import { PageToolbar, StatusBadge } from "../../components/ui";
 import { Plus } from "lucide-react";
 
 export default function CollectionsPage() {
@@ -59,11 +60,7 @@ export default function CollectionsPage() {
     {
       key: "isActive",
       label: "Active",
-      render: (val) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${val ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-          {val ? 'Yes' : 'No'}
-        </span>
-      )
+      render: (val) => <StatusBadge value={val} />
     }
   ];
 
@@ -74,20 +71,10 @@ export default function CollectionsPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Collections</h2>
-          <p className="text-sm text-gray-500 mt-1">Create a collection first, then add images on the Collection Images page.</p>
-        </div>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="bg-[#4361ee] hover:bg-blue-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          <span>Add Collection</span>
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageToolbar title="Collections" description="Create a collection first, then add images on Collection Images.">
+        <button onClick={() => handleOpenModal()} className="admin-btn-primary"><Plus size={18} /> Add collection</button>
+      </PageToolbar>
       
       <DataTable 
         columns={columns} 

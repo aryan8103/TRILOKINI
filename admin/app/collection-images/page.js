@@ -10,6 +10,7 @@ import {
 import { resolveImage } from "../../utils";
 import DataTable from "../../components/DataTable";
 import FormModal from "../../components/FormModal";
+import { PageToolbar, StatusBadge, EmptyThumb } from "../../components/ui";
 import { Plus } from "lucide-react";
 
 const POSITION_OPTIONS = [
@@ -87,7 +88,7 @@ export default function CollectionImagesPage() {
     {
       key: "imageUrl",
       label: "Image",
-      render: (val) => val ? <img src={resolveImage(val)} alt="Collection" className="w-20 h-16 rounded object-cover object-top" /> : <div className="w-20 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">No Img</div>
+      render: (val) => val ? <img src={resolveImage(val)} alt="Collection" className="w-20 h-16 rounded object-cover object-top" /> : <EmptyThumb className="w-20 h-16 rounded" />
     },
     {
       key: "collection",
@@ -98,11 +99,7 @@ export default function CollectionImagesPage() {
     {
       key: "isActive",
       label: "Active",
-      render: (val) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${val ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-          {val ? 'Yes' : 'No'}
-        </span>
-      )
+      render: (val) => <StatusBadge value={val} />
     }
   ];
 
@@ -127,27 +124,14 @@ export default function CollectionImagesPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-800">Collection Images</h2>
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <select 
-            value={selectedCollectionFilter}
-            onChange={(e) => setSelectedCollectionFilter(e.target.value)}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none"
-          >
-            <option value="">All Collections</option>
-            {collections.map((c) => <option key={c._id} value={c._id}>{c.title}</option>)}
-          </select>
-          <button 
-            onClick={() => handleOpenModal()}
-            className="bg-[#4361ee] hover:bg-blue-700 text-white px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm whitespace-nowrap"
-          >
-            <Plus size={20} />
-            <span>Add Image</span>
-          </button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageToolbar title="Collection images" description="Grid images for each collection.">
+        <select value={selectedCollectionFilter} onChange={(e) => setSelectedCollectionFilter(e.target.value)} className="admin-input sm:w-52">
+          <option value="">All collections</option>
+          {collections.map((c) => <option key={c._id} value={c._id}>{c.title}</option>)}
+        </select>
+        <button onClick={() => handleOpenModal()} className="admin-btn-primary"><Plus size={18} /> Add image</button>
+      </PageToolbar>
       
       <DataTable 
         columns={columns} 

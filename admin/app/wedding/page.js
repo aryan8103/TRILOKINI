@@ -4,6 +4,7 @@ import { getWeddingItems, createWeddingItem, updateWeddingItem, deleteWeddingIte
 import { resolveImage } from "../../utils";
 import DataTable from "../../components/DataTable";
 import FormModal from "../../components/FormModal";
+import { PageToolbar, StatusBadge, EmptyThumb } from "../../components/ui";
 import { Plus } from "lucide-react";
 
 export default function WeddingPage() {
@@ -58,24 +59,20 @@ export default function WeddingPage() {
     {
       key: "imageUrl",
       label: "Image",
-      render: (val, row) => val ? <img src={resolveImage(val)} alt="Wedding Item" className={`h-16 rounded object-cover object-top ${row.isWide ? 'w-32' : 'w-16'}`} /> : <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">No Img</div>
+      render: (val, row) => val ? <img src={resolveImage(val)} alt="Wedding Item" className={`h-16 rounded object-cover object-top ${row.isWide ? 'w-32' : 'w-16'}`} /> : <EmptyThumb className="w-16 h-16 rounded" />
     },
     { key: "name", label: "Name" },
     { key: "subtitle", label: "Subtitle" },
     { 
       key: "isWide", 
       label: "Wide?", 
-      render: (val) => val ? 'Yes' : 'No' 
+      render: (val) => <StatusBadge value={val} /> 
     },
     { key: "order", label: "Order" },
     {
       key: "isActive",
       label: "Active",
-      render: (val) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${val ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-          {val ? 'Yes' : 'No'}
-        </span>
-      )
+      render: (val) => <StatusBadge value={val} />
     }
   ];
 
@@ -90,17 +87,10 @@ export default function WeddingPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Wedding Studio</h2>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="bg-[#4361ee] hover:bg-blue-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          <span>Add Wedding Item</span>
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageToolbar title="Wedding studio" description="Wedding looks and studio tiles.">
+        <button onClick={() => handleOpenModal()} className="admin-btn-primary"><Plus size={18} /> Add wedding item</button>
+      </PageToolbar>
       
       <DataTable 
         columns={columns} 

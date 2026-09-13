@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { getCustomOrders, setCustomOrderPrice, addCustomOrderMessage, updateCustomOrderStatus } from "../../api";
 import DataTable from "../../components/DataTable";
+import { PageToolbar, Pill } from "../../components/ui";
+import { X } from "lucide-react";
 
 const STATUS_OPTIONS = ["submitted", "under_review", "price_set", "payment_pending", "paid", "in_production", "shipped", "delivered", "cancelled"];
 
@@ -25,130 +27,80 @@ export default function CustomOrdersPage() {
   useEffect(() => { fetchOrders(); }, []);
 
   const fetchOrders = async () => {
-    try {
-      const res = await getCustomOrders();
-      setOrders(res.data || []);
-    } catch (error) {
-      console.error(error);
-    }
+    try { setOrders((await getCustomOrders()).data || []); } catch (error) { console.error(error); }
+  };
+
+  const refreshSelected = async (id) => {
+    const res = await getCustomOrders();
+    setOrders(res.data || []);
+    setSelected((res.data || []).find((o) => o._id === id) || null);
   };
 
   const handleSetPrice = async () => {
     if (!selected || !price) return;
-    try {
-      await setCustomOrderPrice(selected._id, { quotedPrice: Number(price), note: `Price set to ₹${Number(price).toLocaleString("en-IN")}` });
-      fetchOrders();
-      setPrice("");
-      const res = await getCustomOrders();
-      const updated = (res.data || []).find((o) => o._id === selected._id);
-      setSelected(updated);
-    } catch (error) {
-      console.error(error);
-    }
+    await setCustomOrderPrice(selected._id, { quotedPrice: Number(price), note: `Price set to ₹${Number(price).toLocaleString("en-IN")}` });
+    setPrice("");
+    await refreshSelected(selected._id);
   };
 
   const handleSendMessage = async () => {
     if (!selected || !message.trim()) return;
-    try {
-      await addCustomOrderMessage(selected._id, { sender: "admin", text: message });
-      setMessage("");
-      const res = await getCustomOrders();
-      const updated = (res.data || []).find((o) => o._id === selected._id);
-      setSelected(updated);
-      fetchOrders();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleStatusChange = async (status) => {
-    if (!selected) return;
-    try {
-      await updateCustomOrderStatus(selected._id, { status, note: `Status updated to ${status}` });
-      fetchOrders();
-      const res = await getCustomOrders();
-      const updated = (res.data || []).find((o) => o._id === selected._id);
-      setSelected(updated);
-    } catch (error) {
-      console.error(error);
-    }
+    await addCustomOrderMessage(selected._id, { sender: "admin", text: message });
+    setMessage("");
+    await refreshSelected(selected._id);
   };
 
   const columns = [
-    { key: "orderNumber", label: "Order #", render: (val) => <span className="font-medium">{val}</span> },
-    { key: "productTitle", label: "Product", render: (val, row) => <div><p className="font-medium">{val}</p><p className="text-xs text-gray-500">{row.designerName}</p></div> },
-    { key: "customerEmail", label: "Customer", render: (val, row) => <div><p>{val}</p><p className="text-xs text-gray-500">{row.customerMobile}</p></div> },
-    { key: "finalPrice", label: "Price", render: (val) => val ? `₹${val.toLocaleString("en-IN")}` : <span className="text-gray-400">Pending</span> },
-    { key: "status", label: "Status", render: (val) => (
-      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 capitalize">{val?.replace(/_/g, " ")}</span>
-    )},
+    { key: "orderNumber", label: "Order #", render: (val) => <span className="font-medium text-white">{val}</span> },
+    { key: "productTitle", label: "Product", render: (val, row) => <div><p className="font-medium text-white">{val}</p><p className="text-xs" style={{ color: "var(--text-muted)" }}>{row.designerName}</p></div> },
+    { key: "customerEmail", label: "Customer", render: (val, row) => <div><p>{val}</p><p className="text-xs" style={{ color: "var(--text-muted)" }}>{row.customerMobile}</p></div> },
+    { key: "finalPrice", label: "Price", render: (val) => val ? `₹${val.toLocaleString("en-IN")}` : <span style={{ color: "var(--text-muted)" }}>Pending</span> },
+    { key: "status", label: "Status", render: (val) => <Pill>{val?.replace(/_/g, " ")}</Pill> },
     { key: "createdAt", label: "Date", render: (val) => new Date(val).toLocaleDateString("en-IN") },
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <h2 className="text-2xl font-bold text-gray-800">Custom Tailored Orders</h2>
-
+    <div className="space-y-6">
+      <PageToolbar title="Custom orders" description="Measurements, chat and quoted pricing." />
       <DataTable columns={columns} data={orders} onEdit={(row) => setSelected(row)} />
 
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelected(null)}>
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }} onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-white mb-2">{selected.orderNumber}</h3>
-            <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>{selected.productTitle} — {selected.designerName}</p>
+      {selected ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setSelected(null)}>
+          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl p-6" style={{ background: "var(--card-bg)", border: "1px solid var(--border-color)" }} onClick={(e) => e.stopPropagation()}>
+            <button className="absolute right-4 top-4" style={{ color: "var(--text-muted)" }} onClick={() => setSelected(null)}><X size={18} /></button>
+            <p className="text-xs uppercase tracking-[0.16em]" style={{ color: "var(--text-muted)" }}>Custom order</p>
+            <h3 className="mt-1 text-xl font-semibold text-white">{selected.orderNumber}</h3>
+            <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>{selected.productTitle} — {selected.designerName}</p>
 
-            <div className="grid grid-cols-2 gap-2 mb-4 text-xs" style={{ color: 'var(--text-muted)' }}>
+            <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl p-4 text-xs" style={{ background: "var(--input-bg)", color: "var(--text-muted)" }}>
               {Object.entries(selected.measurements || {}).filter(([, v]) => v).map(([key, val]) => (
-                <p key={key}>{MEASUREMENT_LABELS[key] || key}: {val} {selected.unit}</p>
+                <p key={key}><span className="text-white">{MEASUREMENT_LABELS[key] || key}:</span> {val} {selected.unit}</p>
               ))}
             </div>
 
-            {selected.messages?.length > 0 && (
-              <div className="mb-4 max-h-32 overflow-y-auto border rounded-lg p-3" style={{ borderColor: 'var(--border-color)' }}>
-                {selected.messages.map((msg, i) => (
-                  <p key={i} className={`text-xs mb-1 ${msg.sender === 'admin' ? 'text-right' : ''}`} style={{ color: 'var(--text-muted)' }}>
-                    <span className="font-medium">{msg.sender}:</span> {msg.text}
-                  </p>
-                ))}
-              </div>
-            )}
-
-            <div className="flex gap-2 mb-4">
-              <input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Send message to customer..."
-                className="flex-1 px-3 py-2 rounded-lg text-sm"
-                style={{ background: '#0f0f0f', border: '1px solid var(--border-color)', color: 'white' }}
-              />
-              <button onClick={handleSendMessage} className="px-4 py-2 rounded-lg text-sm text-white" style={{ background: 'var(--primary-teal)' }}>Send</button>
+            <div className="mt-4 max-h-40 space-y-2 overflow-y-auto rounded-xl p-3" style={{ background: "var(--input-bg)" }}>
+              {(selected.messages || []).map((msg, i) => (
+                <p key={i} className={`text-sm ${msg.sender === "admin" ? "text-right" : ""}`}>
+                  <span className="text-xs uppercase" style={{ color: "var(--text-muted)" }}>{msg.sender}</span>
+                  <span className="ml-2 text-white">{msg.text}</span>
+                </p>
+              ))}
             </div>
 
-            <div className="flex gap-2 mb-4">
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="Set quoted price (₹)"
-                className="flex-1 px-3 py-2 rounded-lg text-sm"
-                style={{ background: '#0f0f0f', border: '1px solid var(--border-color)', color: 'white' }}
-              />
-              <button onClick={handleSetPrice} className="px-4 py-2 rounded-lg text-sm text-white" style={{ background: 'var(--primary-teal)' }}>Set Price</button>
+            <div className="mt-4 flex gap-2">
+              <input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message the customer" className="admin-input" />
+              <button onClick={handleSendMessage} className="admin-btn-primary">Send</button>
             </div>
-
-            <select
-              value={selected.status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg text-sm mb-4"
-              style={{ background: '#0f0f0f', border: '1px solid var(--border-color)', color: 'white' }}
-            >
+            <div className="mt-3 flex gap-2">
+              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Quoted price (₹)" className="admin-input" />
+              <button onClick={handleSetPrice} className="admin-btn-primary">Set price</button>
+            </div>
+            <select value={selected.status} onChange={(e) => updateCustomOrderStatus(selected._id, { status: e.target.value, note: `Status updated to ${e.target.value}` }).then(() => refreshSelected(selected._id))} className="admin-input mt-3">
               {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
             </select>
-
-            <button onClick={() => setSelected(null)} className="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm">Close</button>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

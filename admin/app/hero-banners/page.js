@@ -4,6 +4,7 @@ import { getHeroBanners, createHeroBanner, updateHeroBanner, deleteHeroBanner } 
 import { resolveImage } from "../../utils";
 import DataTable from "../../components/DataTable";
 import FormModal from "../../components/FormModal";
+import { PageToolbar, EmptyThumb } from "../../components/ui";
 import { Plus } from "lucide-react";
 
 export default function HeroBannersPage() {
@@ -95,7 +96,7 @@ export default function HeroBannersPage() {
     {
       key: "imageUrl",
       label: "Desktop Image",
-      render: (val) => val ? <img src={resolveImage(val)} alt="Desktop Banner" className="w-20 h-10 rounded object-cover object-top" /> : '-'
+      render: (val) => val ? <img src={resolveImage(val)} alt="Desktop Banner" className="w-20 h-10 rounded object-cover object-top" /> : <EmptyThumb className="w-20 h-10 rounded" />
     },
     { key: "linkUrl", label: "Link URL" }
   ];
@@ -106,17 +107,10 @@ export default function HeroBannersPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Hero Banners</h2>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="bg-[#4361ee] hover:bg-blue-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          <span>Add Banner</span>
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageToolbar title="Hero banners" description="Homepage carousel. Drag rows to reorder.">
+        <button onClick={() => handleOpenModal()} className="admin-btn-primary"><Plus size={18} /> Add banner</button>
+      </PageToolbar>
       
       <DataTable 
         columns={columns} 

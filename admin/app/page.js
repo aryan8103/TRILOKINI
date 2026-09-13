@@ -1,130 +1,119 @@
 "use client";
 import { useState, useEffect } from "react";
 import StatCard from "../components/StatCard";
-import { Box, ShoppingBag, Users, Image as ImageIcon, ArrowRight, Activity, TrendingUp, DollarSign, ListOrdered } from "lucide-react";
+import { PageToolbar } from "../components/ui";
+import { Box, ShoppingBag, Users, Image as ImageIcon, ArrowRight, Activity, ListOrdered, Package, Scissors } from "lucide-react";
 import Link from "next/link";
-import { getCategories, getProducts, getDesigners, getHeroBanners } from "../api";
+import { getCategories, getProducts, getDesigners, getHeroBanners, getOrders, getCustomOrders } from "../api";
 
 export default function AdminHome() {
   const [stats, setStats] = useState({
     products: 0,
     categories: 0,
-    designers: 0,
-    banners: 0,
+    orders: 0,
+    customOrders: 0,
   });
+  const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [prodRes, catRes, desRes, banRes] = await Promise.all([
+        const [prodRes, catRes, desRes, banRes, orderRes, customRes] = await Promise.all([
           getProducts().catch(() => ({ data: [] })),
           getCategories().catch(() => ({ data: [] })),
           getDesigners().catch(() => ({ data: [] })),
-          getHeroBanners().catch(() => ({ data: [] }))
+          getHeroBanners().catch(() => ({ data: [] })),
+          getOrders().catch(() => ({ data: [] })),
+          getCustomOrders().catch(() => ({ data: [] })),
         ]);
-        
+
+        const orders = orderRes.data || [];
         setStats({
           products: prodRes.data?.length || 0,
           categories: catRes.data?.length || 0,
-          designers: desRes.data?.length || 0,
-          banners: banRes.data?.length || 0,
+          orders: orders.length,
+          customOrders: customRes.data?.length || 0,
         });
+        setRecentOrders(orders.slice(0, 6));
+        void desRes;
+        void banRes;
       } catch (error) {
         console.error("Failed to fetch stats", error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchStats();
   }, []);
 
   return (
     <div className="space-y-6">
-      {/* Stat Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Products" 
-          value={loading ? "..." : stats.products} 
-          icon={ShoppingBag} 
-          subtitle="Live data"
-        />
-        <StatCard 
-          title="Active Categories" 
-          value={loading ? "..." : stats.categories} 
-          icon={Box} 
-          subtitle="56% of total"
-        />
-        <StatCard 
-          title="Total Revenue" 
-          value="₹0" 
-          icon={DollarSign} 
-          subtitle="No payments yet"
-        />
-        <StatCard 
-          title="Total Profit" 
-          value="₹0" 
-          icon={TrendingUp} 
-          subtitle="No data"
-        />
+      <PageToolbar title="Dashboard" description="Catalog and order snapshot." />
+
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Products" value={loading ? "…" : stats.products} icon={ShoppingBag} subtitle="In catalog" />
+        <StatCard title="Categories" value={loading ? "…" : stats.categories} icon={Box} subtitle="Storefront groups" />
+        <StatCard title="Orders" value={loading ? "…" : stats.orders} icon={Package} subtitle="Ready-to-wear" />
+        <StatCard title="Custom orders" value={loading ? "…" : stats.customOrders} icon={Scissors} subtitle="Awaiting quote or production" />
       </div>
 
-      {/* Panels Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
-        
-        {/* Left Panel (Quick Actions styled as dark card) */}
-        <div 
-          className="rounded-2xl p-6"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', minHeight: '380px' }}
-        >
-          <div className="flex items-center gap-2 mb-8">
-            <Activity size={20} style={{ color: 'var(--primary-teal)' }} />
-            <h3 style={{ color: 'white', fontSize: '18px', fontWeight: '500' }}>Quick Actions</h3>
+      <div className="grid grid-cols-1 gap-6 pt-2 lg:grid-cols-2">
+        <div className="page-card min-h-[380px]">
+          <div className="mb-6 flex items-center gap-2">
+            <Activity size={20} className="text-[var(--primary)]" />
+            <h3 className="text-lg font-medium text-white">Quick actions</h3>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-3">
             {[
-              { title: "Manage Products", icon: ShoppingBag, href: "/products" },
-              { title: "Manage Categories", icon: Box, href: "/categories" },
-              { title: "Update Banners", icon: ImageIcon, href: "/hero-banners" },
-              { title: "Manage Designers", icon: Users, href: "/designers" }
-            ].map((action, i) => (
-              <Link 
-                key={i} 
+              { title: "Products", icon: ShoppingBag, href: "/products" },
+              { title: "Categories", icon: Box, href: "/categories" },
+              { title: "Hero banners", icon: ImageIcon, href: "/hero-banners" },
+              { title: "Designers", icon: Users, href: "/designers" },
+              { title: "Orders", icon: Package, href: "/orders" },
+              { title: "Custom orders", icon: Scissors, href: "/custom-orders" },
+            ].map((action) => (
+              <Link
+                key={action.href}
                 href={action.href}
-                className="group flex items-center justify-between p-4 rounded-xl transition-all"
-                style={{ background: '#0f0f0f', border: '1px solid var(--border-color)' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary-teal)'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                className="group flex items-center justify-between rounded-xl p-4 bg-[var(--input-bg)] border border-[var(--border-color)] hover:border-[var(--primary)] transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg" style={{ background: 'rgba(0, 180, 216, 0.1)' }}>
-                    <action.icon size={18} style={{ color: 'var(--primary-teal)' }} />
+                  <div className="rounded-lg p-2 bg-[rgba(124,109,250,0.1)]">
+                    <action.icon size={18} className="text-[var(--primary)]" />
                   </div>
-                  <span style={{ color: 'white', fontWeight: '500' }}>{action.title}</span>
+                  <span className="font-medium text-white">{action.title}</span>
                 </div>
-                <ArrowRight size={16} style={{ color: 'var(--text-muted)' }} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={16} className="text-[var(--text-muted)] group-hover:translate-x-1 group-hover:text-white transition-all" />
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Right Panel (Recent Activity styled as dark card) */}
-        <div 
-          className="rounded-2xl p-6 flex flex-col items-center justify-center"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', minHeight: '380px' }}
-        >
-          <div className="w-full flex items-center gap-2 mb-8 self-start">
-            <ListOrdered size={20} style={{ color: 'var(--primary-teal)' }} />
-            <h3 style={{ color: 'white', fontSize: '18px', fontWeight: '500' }}>Recent Activity</h3>
+        <div className="page-card flex flex-col min-h-[380px]">
+          <div className="mb-6 flex items-center gap-2">
+            <ListOrdered size={20} className="text-[var(--primary)]" />
+            <h3 className="text-lg font-medium text-white">Recent orders</h3>
           </div>
-          
-          <div className="flex-1 flex items-center justify-center w-full">
-            <p style={{ color: 'var(--text-muted)' }}>No recent activity data available</p>
-          </div>
+          {recentOrders.length === 0 ? (
+            <p className="flex flex-1 items-center justify-center text-[var(--text-muted)]">
+              {loading ? "Loading…" : "No orders yet"}
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {recentOrders.map((order) => (
+                <div key={order._id} className="flex items-center justify-between rounded-xl p-4 bg-[var(--input-bg)] border border-[var(--border-color)]">
+                  <div>
+                    <p className="text-sm font-medium text-white">{order.orderNumber}</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{order.customerEmail}</p>
+                  </div>
+                  <p className="text-sm font-medium text-white">₹{order.total?.toLocaleString("en-IN")}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        
       </div>
     </div>
   );

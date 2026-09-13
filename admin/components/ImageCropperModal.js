@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
-import Cropper from 'react-easy-crop';
-import { X, ZoomIn, ZoomOut } from 'lucide-react';
-import getCroppedImg from '../utils/cropImage';
+import React, { useState, useCallback } from "react";
+import Cropper from "react-easy-crop";
+import { X, ZoomIn, ZoomOut } from "lucide-react";
+import getCroppedImg from "../utils/cropImage";
 
 export default function ImageCropperModal({ imageSrc, onCropDone, onCropCancel, aspectRatio }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -9,8 +9,8 @@ export default function ImageCropperModal({ imageSrc, onCropDone, onCropCancel, 
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
-    setCroppedAreaPixels(croppedAreaPixels);
+  const onCropComplete = useCallback((_croppedArea, pixels) => {
+    setCroppedAreaPixels(pixels);
   }, []);
 
   const handleSave = async () => {
@@ -27,23 +27,16 @@ export default function ImageCropperModal({ imageSrc, onCropDone, onCropCancel, 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in">
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl overflow-hidden flex flex-col shadow-2xl" style={{ maxHeight: '90vh' }}>
-        
-        {/* Header */}
-        <div className="p-4 border-b flex justify-between items-center bg-gray-50">
-          <h3 className="text-lg font-semibold text-gray-800">Crop Image</h3>
-          <button 
-            onClick={onCropCancel} 
-            className="p-1 rounded-full hover:bg-gray-200 text-gray-500 transition-colors"
-            disabled={isProcessing}
-          >
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+      <div className="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl" style={{ maxHeight: "90vh", background: "var(--card-bg)", border: "1px solid var(--border-color)" }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--border-color)" }}>
+          <h3 className="text-lg font-semibold text-white">Crop image</h3>
+          <button onClick={onCropCancel} className="rounded-full p-1" style={{ color: "var(--text-muted)" }} disabled={isProcessing}>
             <X size={20} />
           </button>
         </div>
 
-        {/* Cropper Area */}
-        <div className="relative w-full bg-gray-900" style={{ height: '50vh', minHeight: '400px' }}>
+        <div className="relative w-full bg-black" style={{ height: "50vh", minHeight: "360px" }}>
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -56,43 +49,29 @@ export default function ImageCropperModal({ imageSrc, onCropDone, onCropCancel, 
           />
         </div>
 
-        {/* Controls */}
-        <div className="p-6 bg-white flex flex-col gap-6">
+        <div className="flex flex-col gap-6 p-6">
           <div className="flex items-center gap-4">
-            <ZoomOut size={20} className="text-gray-500" />
+            <ZoomOut size={20} style={{ color: "var(--text-muted)" }} />
             <input
               type="range"
               value={zoom}
               min={1}
               max={3}
               step={0.1}
-              aria-labelledby="Zoom"
+              aria-label="Zoom"
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="h-2 w-full cursor-pointer appearance-none rounded-lg"
+              style={{ accentColor: "var(--primary-teal)", background: "var(--border-color)" }}
             />
-            <ZoomIn size={20} className="text-gray-500" />
+            <ZoomIn size={20} style={{ color: "var(--text-muted)" }} />
           </div>
-
           <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onCropCancel}
-              className="px-6 py-2 rounded-xl text-gray-600 font-medium hover:bg-gray-100 transition-colors"
-              disabled={isProcessing}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isProcessing}
-              className="px-6 py-2 rounded-xl text-white font-medium bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isProcessing ? 'Processing...' : 'Crop & Upload'}
+            <button type="button" onClick={onCropCancel} className="admin-btn-ghost" disabled={isProcessing}>Cancel</button>
+            <button type="button" onClick={handleSave} disabled={isProcessing} className="admin-btn-primary">
+              {isProcessing ? "Processing..." : "Crop & upload"}
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

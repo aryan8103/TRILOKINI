@@ -4,6 +4,7 @@ import { getCelebrities, createCelebrity, updateCelebrity, deleteCelebrity } fro
 import { resolveImage } from "../../utils";
 import DataTable from "../../components/DataTable";
 import FormModal from "../../components/FormModal";
+import { PageToolbar, StatusBadge, EmptyThumb } from "../../components/ui";
 import { Plus } from "lucide-react";
 
 export default function CelebritiesPage() {
@@ -58,7 +59,7 @@ export default function CelebritiesPage() {
     {
       key: "imageUrl",
       label: "Image",
-      render: (val) => val ? <img src={resolveImage(val)} alt="Celebrity" className="w-12 h-16 rounded object-cover object-top" /> : <div className="w-12 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">No Img</div>
+      render: (val) => val ? <img src={resolveImage(val)} alt="Celebrity" className="w-12 h-16 rounded object-cover object-top" /> : <EmptyThumb className="w-12 h-16 rounded" />
     },
     { key: "name", label: "Name" },
     { key: "subtitle", label: "Subtitle" },
@@ -66,11 +67,7 @@ export default function CelebritiesPage() {
     {
       key: "isActive",
       label: "Active",
-      render: (val) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${val ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-          {val ? 'Yes' : 'No'}
-        </span>
-      )
+      render: (val) => <StatusBadge value={val} />
     }
   ];
 
@@ -84,17 +81,10 @@ export default function CelebritiesPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Celebrities</h2>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="bg-[#4361ee] hover:bg-blue-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          <span>Add Celebrity</span>
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageToolbar title="Celebrities" description="Looks and profiles shown on the homepage.">
+        <button onClick={() => handleOpenModal()} className="admin-btn-primary"><Plus size={18} /> Add celebrity</button>
+      </PageToolbar>
       
       <DataTable 
         columns={columns} 

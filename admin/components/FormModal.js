@@ -1,303 +1,262 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImageUpload from "./ImageUpload";
 import ToggleSwitch from "./ToggleSwitch";
 import MultiImageUpload from "./MultiImageUpload";
-import { Plus, Trash2 } from "lucide-react";
+
+function AddonsEditor({ value = [], onChange }) {
+  const addons = Array.isArray(value) ? value : [];
+  return (
+    <div className="space-y-4">
+      {addons.map((addon, index) => (
+        <div key={index} className="relative rounded-xl border border-[var(--border-color)] bg-[var(--card-elevated)] p-4">
+          <button type="button" onClick={() => onChange(addons.filter((_, i) => i !== index))} className="absolute right-3 top-3 text-[var(--danger)] hover:bg-[rgba(239,68,68,0.1)] p-1.5 rounded-lg transition-colors" aria-label="Remove addon">
+            <Trash2 size={16} />
+          </button>
+          <div className="grid grid-cols-2 gap-4 pr-10">
+            <div>
+              <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Name</label>
+              <input className="admin-input" value={addon.name || ""} onChange={(e) => {
+                const next = [...addons];
+                next[index] = { ...addon, name: e.target.value };
+                onChange(next);
+              }} />
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Price (₹)</label>
+              <input type="number" className="admin-input" value={addon.price ?? ""} onChange={(e) => {
+                const next = [...addons];
+                next[index] = { ...addon, price: Number(e.target.value) };
+                onChange(next);
+              }} />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-3 text-sm text-white">
+            <ToggleSwitch checked={!!addon.hasSizes} onChange={(c) => {
+              const next = [...addons];
+              next[index] = { ...addon, hasSizes: c, sizes: addon.sizes || ["XS", "S", "M", "L", "XL"] };
+              onChange(next);
+            }} />
+            <span>Has sizes</span>
+          </div>
+          {addon.hasSizes ? (
+            <div className="mt-3">
+              <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Sizes (comma separated)</label>
+              <input
+                className="admin-input"
+                placeholder="XS, S, M, L, XL"
+                value={(addon.sizes || []).join(", ")}
+                onChange={(e) => {
+                  const next = [...addons];
+                  next[index] = { ...addon, sizes: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) };
+                  onChange(next);
+                }}
+              />
+            </div>
+          ) : null}
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...addons, { name: "", price: 0, hasSizes: false, sizes: [] }])}
+        className="w-full py-3 rounded-xl border border-dashed border-[var(--primary)] text-[var(--primary)] flex items-center justify-center gap-2 text-sm hover:bg-[rgba(124,109,250,0.05)] transition-colors font-medium"
+      >
+        <Plus size={16} /> Add addon
+      </button>
+    </div>
+  );
+}
 
 export default function FormModal({ isOpen, onClose, title, fields, initialData = null, onSubmit }) {
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
+      setError("");
       if (initialData) {
         setFormData(initialData);
       } else {
         const defaultData = {};
-        fields.forEach(field => {
-          defaultData[field.name] = field.type === 'toggle' ? false : '';
+        fields.forEach((field) => {
+          if (field.type === "toggle") defaultData[field.name] = false;
+          else if (field.type === "variants" || field.type === "addons") defaultData[field.name] = [];
+          else defaultData[field.name] = "";
         });
         setFormData(defaultData);
       }
     }
   }, [isOpen, initialData, fields]);
 
-  const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (name, value) => setFormData((prev) => ({ ...prev, [name]: value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate required custom fields (like image) that don't use native HTML5 validation
-    const missingRequired = fields.find(f => f.required && (formData[f.name] === undefined || formData[f.name] === null || formData[f.name] === ''));
+    const missingRequired = fields.find((f) => f.required && (formData[f.name] === undefined || formData[f.name] === null || formData[f.name] === ""));
     if (missingRequired) {
-      alert(`Please fill out the required field: ${missingRequired.label}`);
+      setError(`Please fill out: ${missingRequired.label}`);
       return;
     }
-
     setIsSubmitting(true);
-    
     const sanitizedData = { ...formData };
-    fields.forEach(field => {
-      // Remove empty strings for number fields to prevent Mongoose cast errors
-      if (field.type === 'number' && (sanitizedData[field.name] === '' || sanitizedData[field.name] === undefined)) {
+    fields.forEach((field) => {
+      if (field.type === "number" && (sanitizedData[field.name] === "" || sanitizedData[field.name] === undefined)) {
         delete sanitizedData[field.name];
       }
     });
-
     try {
       await onSubmit(sanitizedData);
       onClose();
-    } catch (error) {
-      console.error("Form submission failed", error);
+    } catch (err) {
+      setError(err.message || "Form submission failed");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const renderField = (field) => {
+    if (field.type === "textarea") {
+      return (
+        <textarea required={field.required} value={formData[field.name] || ""} onChange={(e) => handleChange(field.name, e.target.value)} className="admin-input min-h-[96px] resize-y" placeholder={field.placeholder} />
+      );
+    }
+    if (field.type === "select") {
+      return (
+        <select required={field.required} value={formData[field.name] || ""} onChange={(e) => handleChange(field.name, e.target.value)} className="admin-input">
+          <option value="" disabled>Select {field.label}</option>
+          {field.options?.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+        </select>
+      );
+    }
+    if (field.type === "image") {
+      return <ImageUpload value={formData[field.name]} onChange={(url) => handleChange(field.name, url)} aspectRatio={field.aspectRatio} />;
+    }
+    if (field.type === "toggle") {
+      return <ToggleSwitch checked={!!formData[field.name]} onChange={(checked) => handleChange(field.name, checked)} />;
+    }
+    if (field.type === "addons") {
+      return <AddonsEditor value={formData[field.name]} onChange={(v) => handleChange(field.name, v)} />;
+    }
+    if (field.type === "tags") {
+      return (
+        <div>
+          <input
+            type="text"
+            required={field.required}
+            value={(formData[field.name] || []).join(", ")}
+            placeholder={field.placeholder || "trending, new"}
+            onChange={(e) => handleChange(field.name, e.target.value.split(",").map((t) => t.trim()).filter(Boolean))}
+            className="admin-input"
+          />
+          <p className="text-xs text-[var(--text-muted)] mt-1.5">Comma separated list of tags</p>
+        </div>
+      );
+    }
+    if (field.type === "variants") {
+      return (
+        <div className="space-y-4">
+          {(formData[field.name] || []).map((variant, index) => (
+            <div key={index} className="relative rounded-xl border border-[var(--border-color)] bg-[var(--card-elevated)] p-4 space-y-4">
+              <button type="button" onClick={() => {
+                const next = [...formData[field.name]];
+                next.splice(index, 1);
+                handleChange(field.name, next);
+              }} className="absolute right-3 top-3 text-[var(--danger)] hover:bg-[rgba(239,68,68,0.1)] p-1.5 rounded-lg transition-colors">
+                <Trash2 size={16} />
+              </button>
+              
+              <div className="pr-10">
+                <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Color / tone *</label>
+                <input type="text" required value={variant.color || ""} onChange={(e) => {
+                  const next = [...formData[field.name]];
+                  next[index].color = e.target.value;
+                  handleChange(field.name, next);
+                }} className="admin-input" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Current price *</label>
+                  <input type="number" required value={variant.currentPrice || ""} onChange={(e) => {
+                    const next = [...formData[field.name]];
+                    next[index].currentPrice = Number(e.target.value);
+                    handleChange(field.name, next);
+                  }} className="admin-input" />
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Previous price</label>
+                  <input type="number" value={variant.previousPrice || ""} onChange={(e) => {
+                    const next = [...formData[field.name]];
+                    next[index].previousPrice = e.target.value ? Number(e.target.value) : undefined;
+                    handleChange(field.name, next);
+                  }} className="admin-input" />
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5 block">Images</label>
+                <MultiImageUpload value={variant.images || []} onChange={(urls) => {
+                  const next = [...formData[field.name]];
+                  next[index].images = urls;
+                  handleChange(field.name, next);
+                }} />
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={() => handleChange(field.name, [...(formData[field.name] || []), { color: "", images: [], currentPrice: "" }])} className="w-full py-3 rounded-xl border border-dashed border-[var(--primary)] text-[var(--primary)] flex items-center justify-center gap-2 text-sm hover:bg-[rgba(124,109,250,0.05)] transition-colors font-medium">
+            <Plus size={16} /> Add variant
+          </button>
+        </div>
+      );
+    }
+    return (
+      <input
+        type={field.type || "text"}
+        required={field.required}
+        value={formData[field.name] || ""}
+        placeholder={field.placeholder}
+        onChange={(e) => handleChange(field.name, field.type === "number" ? Number(e.target.value) : e.target.value)}
+        className="admin-input"
+      />
+    );
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0"
-            style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
-            onClick={onClose}
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative flex max-h-[90vh] w-full max-w-2xl mx-4 flex-col overflow-hidden rounded-2xl shadow-2xl bg-[var(--card-bg)] border border-[var(--border-color)]"
           >
-            <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <h2 className="text-xl font-bold" style={{ color: 'white' }}>{title}</h2>
-              <button 
-                onClick={onClose}
-                className="p-2 rounded-full transition-colors"
-                style={{ color: 'var(--text-muted)' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-              >
-                <X size={20} />
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--border-color)]">
+              <h2 className="text-lg font-semibold text-white">{title}</h2>
+              <button onClick={onClose} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-colors">
+                <X size={18} />
               </button>
             </div>
-            
-            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-              <form id="admin-form" onSubmit={handleSubmit} className="space-y-5">
+
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 custom-scrollbar">
+              <form id="admin-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
                 {fields.map((field) => (
-                  <div key={field.name} className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
-                      {field.label} {field.required && <span className="text-red-500">*</span>}
+                  <div key={field.name} className="flex flex-col">
+                    <label className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-medium mb-1.5">
+                      {field.label} {field.required && <span className="text-[var(--danger)]">*</span>}
                     </label>
-                    
-                    {field.type === "textarea" ? (
-                      <textarea
-                        required={field.required}
-                        value={formData[field.name] || ""}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        className="w-full px-4 py-2 rounded-xl transition-all focus:outline-none focus:ring-1"
-                        style={{ 
-                          background: '#0f0f0f', 
-                          border: '1px solid var(--border-color)', 
-                          color: 'white',
-                          minHeight: '100px',
-                          '--tw-ring-color': 'var(--primary-teal)'
-                        }}
-                      />
-                    ) : field.type === "select" ? (
-                      <select
-                        required={field.required}
-                        value={formData[field.name] || ""}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl transition-all focus:outline-none focus:ring-1"
-                        style={{ 
-                          background: '#0f0f0f', 
-                          border: '1px solid var(--border-color)', 
-                          color: 'white',
-                          '--tw-ring-color': 'var(--primary-teal)'
-                        }}
-                      >
-                        <option value="" disabled style={{ color: 'var(--text-muted)' }}>Select {field.label}</option>
-                        {field.options?.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    ) : field.type === "image" ? (
-                      <div className="mt-1">
-                        <ImageUpload 
-                          value={formData[field.name]} 
-                          onChange={(url) => handleChange(field.name, url)} 
-                          aspectRatio={field.aspectRatio}
-                        />
-                      </div>
-                    ) : field.type === "toggle" ? (
-                      <div className="mt-2">
-                         <ToggleSwitch 
-                            checked={!!formData[field.name]} 
-                            onChange={(checked) => handleChange(field.name, checked)} 
-                         />
-                      </div>
-                    ) : field.type === "variants" ? (
-                      <div className="mt-2 space-y-4">
-                        {(formData[field.name] || []).map((variant, index) => (
-                          <div key={index} className="p-4 rounded-xl border relative" style={{ borderColor: 'var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-                            <button 
-                              type="button" 
-                              onClick={() => {
-                                const newVariants = [...formData[field.name]];
-                                newVariants.splice(index, 1);
-                                handleChange(field.name, newVariants);
-                              }}
-                              className="absolute top-4 right-4 text-red-500 hover:text-red-400"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                            
-                            <div className="space-y-4">
-                              <div>
-                                <label className="text-xs text-gray-400">Color / Tone *</label>
-                                <input
-                                  type="text"
-                                  required
-                                  value={variant.color || ''}
-                                  onChange={(e) => {
-                                    const newVariants = [...formData[field.name]];
-                                    newVariants[index].color = e.target.value;
-                                    handleChange(field.name, newVariants);
-                                  }}
-                                  className="w-full mt-1 px-3 py-2 rounded-lg"
-                                  style={{ background: '#0f0f0f', border: '1px solid var(--border-color)', color: 'white' }}
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label className="text-xs text-gray-400">Current Price *</label>
-                                  <input
-                                    type="number"
-                                    required
-                                    value={variant.currentPrice || ''}
-                                    onChange={(e) => {
-                                      const newVariants = [...formData[field.name]];
-                                      newVariants[index].currentPrice = Number(e.target.value);
-                                      handleChange(field.name, newVariants);
-                                    }}
-                                    className="w-full mt-1 px-3 py-2 rounded-lg"
-                                    style={{ background: '#0f0f0f', border: '1px solid var(--border-color)', color: 'white' }}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs text-gray-400">Cut Price (Previous)</label>
-                                  <input
-                                    type="number"
-                                    value={variant.previousPrice || ''}
-                                    onChange={(e) => {
-                                      const newVariants = [...formData[field.name]];
-                                      newVariants[index].previousPrice = e.target.value ? Number(e.target.value) : undefined;
-                                      handleChange(field.name, newVariants);
-                                    }}
-                                    className="w-full mt-1 px-3 py-2 rounded-lg"
-                                    style={{ background: '#0f0f0f', border: '1px solid var(--border-color)', color: 'white' }}
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-400 mb-2 block">Images</label>
-                                <MultiImageUpload 
-                                  value={variant.images || []} 
-                                  onChange={(urls) => {
-                                    const newVariants = [...formData[field.name]];
-                                    newVariants[index].images = urls;
-                                    handleChange(field.name, newVariants);
-                                  }} 
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newVariants = [...(formData[field.name] || []), { color: '', images: [], currentPrice: '' }];
-                            handleChange(field.name, newVariants);
-                          }}
-                          className="w-full py-3 rounded-xl border border-dashed flex items-center justify-center gap-2 text-sm transition-colors"
-                          style={{ borderColor: 'var(--primary-teal)', color: 'var(--primary-teal)' }}
-                        >
-                          <Plus size={16} /> Add Variant
-                        </button>
-                      </div>
-                    ) : field.type === "tags" ? (
-                      <input
-                        type="text"
-                        required={field.required}
-                        value={(formData[field.name] || []).join(', ')}
-                        placeholder="e.g. trending, new (comma separated)"
-                        onChange={(e) => handleChange(field.name, e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
-                        className="w-full px-4 py-2.5 rounded-xl transition-all focus:outline-none focus:ring-1"
-                        style={{ 
-                          background: '#0f0f0f', 
-                          border: '1px solid var(--border-color)', 
-                          color: 'white',
-                          '--tw-ring-color': 'var(--primary-teal)'
-                        }}
-                      />
-                    ) : (
-                      <input
-                        type={field.type || "text"}
-                        required={field.required}
-                        value={formData[field.name] || ""}
-                        onChange={(e) => handleChange(field.name, field.type === 'number' ? Number(e.target.value) : e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl transition-all focus:outline-none focus:ring-1"
-                        style={{ 
-                          background: '#0f0f0f', 
-                          border: '1px solid var(--border-color)', 
-                          color: 'white',
-                          '--tw-ring-color': 'var(--primary-teal)'
-                        }}
-                      />
-                    )}
+                    {renderField(field)}
                   </div>
                 ))}
+                {error && <p className="text-sm text-[var(--danger)] bg-[rgba(239,68,68,0.1)] p-3 rounded-lg border border-[rgba(239,68,68,0.2)]">{error}</p>}
               </form>
             </div>
-            
-            <div className="p-6 flex justify-end gap-3" style={{ borderTop: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)' }}>
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-5 py-2.5 rounded-xl font-medium transition-colors"
-                style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'white' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                form="admin-form"
-                disabled={isSubmitting}
-                className="px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg flex items-center justify-center min-w-[120px]"
-                style={{ 
-                  background: 'var(--primary-teal)', 
-                  color: 'black',
-                  opacity: isSubmitting ? 0.7 : 1
-                }}
-              >
-                {isSubmitting ? (
-                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  initialData ? "Save Changes" : "Create"
-                )}
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[var(--border-color)] bg-[rgba(0,0,0,0.15)]">
+              <button type="button" onClick={onClose} className="admin-btn-ghost">Cancel</button>
+              <button type="submit" form="admin-form" disabled={isSubmitting} className="admin-btn-primary min-w-[128px]">
+                {isSubmitting ? "Saving..." : initialData?._id ? "Save changes" : "Create"}
               </button>
             </div>
           </motion.div>

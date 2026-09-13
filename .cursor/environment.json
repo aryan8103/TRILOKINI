@@ -1,0 +1,32 @@
+{
+  "name": "TRILOKINI",
+  "user": "ubuntu",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "./scripts/cloud-agent-install.sh",
+  "start": "./scripts/cloud-agent-start.sh",
+  "ports": [
+    { "name": "client", "port": 3000 },
+    { "name": "admin", "port": 3001 },
+    { "name": "api", "port": 5000 }
+  ],
+  "terminals": [
+    {
+      "name": "api",
+      "command": "cd server && npm run dev",
+      "description": "Express API on port 5000"
+    },
+    {
+      "name": "client",
+      "command": "cd client && npm run dev -- --hostname 0.0.0.0",
+      "description": "Next.js storefront on port 3000"
+    },
+    {
+      "name": "admin",
+      "command": "cd admin && npm run dev -- --hostname 0.0.0.0 --port 3001",
+      "description": "Next.js admin panel on port 3001"
+    }
+  ]
+}

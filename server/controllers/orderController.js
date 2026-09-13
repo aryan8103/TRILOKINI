@@ -11,7 +11,7 @@ function generateOrderNumber(prefix = 'ORD') {
 const getAll = async (req, res) => {
   try {
     const { email, mobile } = req.query;
-    const filter = {};
+    const filter = { status: { $ne: 'pending' } };
     if (email) filter.customerEmail = email;
     if (mobile) filter.customerMobile = mobile;
 

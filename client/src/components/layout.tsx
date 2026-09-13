@@ -48,8 +48,8 @@ export function DesktopHeader() {
           </nav>
         </div>
         <div className="relative h-[142px] border-b border-gray-light shadow-[0_1px_4px_rgba(0,0,0,0.13)]">
-          <Link href="/" className="absolute left-1/2 top-[52px] -translate-x-1/2 -translate-y-1/2">
-            <Image src="/logos/trilokini-header.png" alt="Trilokini" width={80} height={80} className="h-20 w-20 object-contain" priority />
+          <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Image src="/logos/trilokini-header.png" alt="Trilokini" width={182} height={139} className="h-[139px] w-[182px] object-contain" priority />
           </Link>
           <div className="flex h-[104px] w-full items-center justify-between px-10 text-[14px] font-medium tracking-[0.56px]">
             <div className="flex items-center gap-10">

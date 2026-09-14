@@ -13,12 +13,12 @@ function imageAt(images: CollectionImage[] | undefined, position: number): strin
 }
 
 const tileLayout = [
-  { position: 1, mobile: "col-span-2 aspect-[391/288]", desktop: "col-span-2 aspect-[686/506]" },
-  { position: 2, mobile: "aspect-[192/288]", desktop: "aspect-[331/506]" },
-  { position: 3, mobile: "aspect-[192/288]", desktop: "aspect-[328/506]" },
-  { position: 4, mobile: "aspect-[192/288]", desktop: "aspect-[331/506]" },
-  { position: 5, mobile: "aspect-[192/288]", desktop: "aspect-[328/506]" },
-  { position: 6, mobile: "col-span-2 aspect-[391/288]", desktop: "col-span-2 aspect-[683/506]" },
+  { position: 1, mobile: "col-span-2 aspect-[391/288]", desktop: "col-span-2 col-start-1 aspect-[686/506]" },
+  { position: 2, mobile: "aspect-[192/288]", desktop: "col-start-3 h-full min-h-0 self-stretch" },
+  { position: 3, mobile: "aspect-[192/288]", desktop: "col-start-4 h-full min-h-0 self-stretch" },
+  { position: 4, mobile: "aspect-[192/288]", desktop: "col-start-1 h-full min-h-0 self-stretch" },
+  { position: 5, mobile: "aspect-[192/288]", desktop: "col-start-2 h-full min-h-0 self-stretch" },
+  { position: 6, mobile: "col-span-2 aspect-[391/288]", desktop: "col-span-2 col-start-3 aspect-[686/506]" },
 ];
 
 function CollectionDetailContent({ collection }: { collection: Collection }) {
@@ -38,7 +38,7 @@ function CollectionDetailContent({ collection }: { collection: Collection }) {
           </Link>
         ))}
       </div>
-      <div className="hidden grid-cols-4 gap-5 lg:grid">
+      <div className="hidden grid-cols-4 items-stretch gap-x-5 gap-y-[29px] lg:grid">
         {tileLayout.map((tile) => (
           <Link key={tile.position} href={images.find((i) => i.position === tile.position)?.href || "/products"} className={`relative block overflow-hidden bg-gray-light ${tile.desktop}`}>
             <Image src={imageAt(images, tile.position)} alt="" fill className="object-cover" />

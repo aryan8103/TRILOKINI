@@ -17,6 +17,7 @@ const icons = {
   search: "/icons/search.png",
   account: "/icons/account.png",
   cart: "/icons/cart.png",
+  whatsapp: "/icons/whatsapp.png",
   sort: "/icons/sort-down.png",
 };
 
@@ -30,7 +31,7 @@ export function DesktopHeader() {
 
   return (
     <>
-      <header className="hidden bg-white lg:block" aria-label="Desktop header">
+      <header className="relative hidden overflow-visible bg-white lg:block" aria-label="Desktop header">
         <div className="relative flex h-[max(31px,2.15vw)] items-center justify-center bg-[#EAEAEA] text-[length:max(12px,0.83vw)] font-medium tracking-[0.36px] text-gray">
           <nav className="flex gap-[max(32px,2.22vw)]" aria-label="Utility navigation">
             {utilityNav.map((item) => (
@@ -47,10 +48,10 @@ export function DesktopHeader() {
             ))}
           </nav>
         </div>
-        <div className="relative h-[max(113px,7.84vw)] border-b border-gray-light shadow-[0_1px_4px_rgba(0,0,0,0.13)]">
-          <Link href="/" className="absolute left-1/2 top-[max(39px,2.7vw)] -translate-x-1/2 -translate-y-1/2">
-            <Image src="/logos/trilokini-header.png" alt="Trilokini" width={182} height={139} className="h-[max(60px,4.16vw)] w-[max(80px,5.55vw)] object-contain" priority />
-          </Link>
+        <Link href="/" className="absolute left-[calc(50%+1px)] top-[5px] z-10 -translate-x-1/2">
+          <Image src="/logos/trilokini-header.png" alt="Trilokini" width={182} height={139} className="h-[139px] w-[182px] object-cover" priority />
+        </Link>
+        <div className="relative h-[max(109px,7.57vw)] border-b border-gray-light shadow-[0_1px_4px_rgba(0,0,0,0.13)]">
           <div className="flex h-[max(78px,5.41vw)] w-full items-center justify-between px-[max(40px,2.77vw)] text-[length:max(14px,0.97vw)] font-medium tracking-[0.56px]">
             <div className="flex items-center gap-[max(40px,2.77vw)]">
               <div className="flex items-center gap-[max(8px,0.55vw)]">
@@ -63,10 +64,19 @@ export function DesktopHeader() {
                 <button type="button" onClick={() => openAuth("login")} className="hover:underline">ACCOUNT</button>
               )}
             </div>
-            <div className="flex items-center gap-[max(20px,1.38vw)]">
-              <IconButton label="Search" icon={icons.search} onClick={() => setSearchOpen(true)} className="h-[max(40px,2.77vw)] w-[max(40px,2.77vw)] p-[max(8px,0.55vw)]" />
-              <button type="button" onClick={openCart} className="relative inline-flex h-[max(40px,2.77vw)] w-[max(40px,2.77vw)] items-center justify-center p-[max(8px,0.55vw)]" aria-label="Open cart">
-                <Image src={icons.cart} alt="" width={24} height={24} className="size-full object-contain" />
+            <div className="relative z-20 flex items-center gap-[max(20px,1.38vw)]">
+              <IconButton label="Search" icon={icons.search} onClick={() => setSearchOpen(true)} className="size-7 p-0" />
+              <a
+                href="https://wa.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="inline-flex size-7 items-center justify-center"
+              >
+                <Image src={icons.whatsapp} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+              </a>
+              <button type="button" onClick={openCart} className="relative inline-flex size-7 items-center justify-center" aria-label="Open cart">
+                <Image src={icons.cart} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
                 {itemCount > 0 ? (
                   <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">{itemCount}</span>
                 ) : null}

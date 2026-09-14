@@ -133,7 +133,23 @@ function DesignerSection({ designers }: { designers: Designer[] }) {
     subtitle: d.subtitle
   })) : staticDesigners;
 
-  return <section className="space-y-5"><SectionHeading title="BESTSELLING DESIGNERS" /><div className="hidden grid-cols-3 gap-4 px-6 lg:grid"><DesignerTile {...items[0]} className="col-span-2" style={{ aspectRatio: 914 / 572 }} /><DesignerTile {...items[1]} className="col-span-1" style={{ aspectRatio: 460 / 572 }} /><DesignerTile {...items[2]} className="col-span-1" style={{ aspectRatio: 445 / 524 }} /><DesignerTile {...items[3]} className="col-span-1" style={{ aspectRatio: 445 / 524 }} /><DesignerTile {...items[4]} className="col-span-1" style={{ aspectRatio: 445 / 524 }} /></div><div className="grid grid-cols-2 gap-2 px-[5px] lg:hidden">{items.slice(0, 5).map((item) => <DesignerTile key={item.src} {...item} style={{ aspectRatio: 192 / 249 }} />)}</div></section>;
+  return (
+    <section className="space-y-5">
+      <SectionHeading title="BESTSELLING DESIGNERS" />
+      <div className="hidden grid-cols-3 items-stretch gap-4 px-6 lg:grid">
+        <DesignerTile {...items[0]} className="col-span-2" style={{ aspectRatio: 914 / 572 }} />
+        <DesignerTile {...items[1]} className="col-span-1 h-full min-h-0 self-stretch" />
+        <DesignerTile {...items[2]} className="col-span-1" style={{ aspectRatio: 445 / 524 }} />
+        <DesignerTile {...items[3]} className="col-span-1" style={{ aspectRatio: 445 / 524 }} />
+        <DesignerTile {...items[4]} className="col-span-1 h-full min-h-0 self-stretch" />
+      </div>
+      <div className="grid grid-cols-2 gap-2 px-[5px] lg:hidden">
+        {items.slice(0, 5).map((item) => (
+          <DesignerTile key={item.src} {...item} style={{ aspectRatio: 192 / 249 }} />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function FavouritesSection({ favourites }: { favourites: FavouriteItem[] }) {
@@ -153,42 +169,42 @@ function FavouritesSection({ favourites }: { favourites: FavouriteItem[] }) {
         </div>
       </div>
       {/* Desktop View */}
-      <div className="hidden lg:grid lg:grid-cols-2 lg:gap-5 lg:px-6">
+      <div className="hidden lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-5 lg:px-6">
         {/* Left Column */}
         <div className="flex flex-col gap-5">
           <div className="relative aspect-[16/9] overflow-hidden bg-gray-light">
             <Image src={imgSrc('left_large_1') || staticDesigners[0].src} alt="" fill className="object-cover" />
           </div>
-          <div className="grid grid-cols-2 gap-5">
-            <div className="relative aspect-[4/5] overflow-hidden bg-gray-light">
+          <div className="grid aspect-[16/9] grid-cols-2 gap-5">
+            <div className="relative min-h-0 overflow-hidden bg-gray-light">
               <Image src={imgSrc('left_small_1') || `${home}/favourites.png`} alt="" fill className="object-cover" />
             </div>
-            <div className="relative aspect-[4/5] overflow-hidden bg-gray-light">
+            <div className="relative min-h-0 overflow-hidden bg-gray-light">
               <Image src={imgSrc('left_small_2') || `${home}/favourites.png`} alt="" fill className="object-cover" />
             </div>
           </div>
           <div className="relative aspect-[16/9] overflow-hidden bg-gray-light">
             <Image src={imgSrc('left_large_2') || staticDesigners[0].src} alt="" fill className="object-cover" />
           </div>
-          <div className="grid grid-cols-2 gap-5">
-            <div className="relative aspect-[4/5] overflow-hidden bg-gray-light">
+          <div className="grid aspect-[16/9] grid-cols-2 gap-5">
+            <div className="relative min-h-0 overflow-hidden bg-gray-light">
               <Image src={imgSrc('left_small_3') || `${home}/favourites.png`} alt="" fill className="object-cover" />
             </div>
-            <div className="relative aspect-[4/5] overflow-hidden bg-gray-light">
+            <div className="relative min-h-0 overflow-hidden bg-gray-light">
               <Image src={imgSrc('left_small_4') || `${home}/favourites.png`} alt="" fill className="object-cover" />
             </div>
           </div>
         </div>
         {/* Right Column */}
         <div className="flex h-full flex-col gap-5">
-          <div className="relative flex-1 overflow-hidden bg-gray-light">
+          <div className="relative min-h-0 flex-1 overflow-hidden bg-gray-light">
             <Image src={imgSrc('right_tall') || staticWedding[4].src} alt="" fill className="object-cover" />
           </div>
-          <div className="grid grid-cols-2 gap-5">
-            <div className="relative aspect-[4/5] overflow-hidden bg-gray-light">
+          <div className="grid aspect-[16/9] grid-cols-2 gap-5">
+            <div className="relative min-h-0 overflow-hidden bg-gray-light">
               <Image src={imgSrc('right_small_1') || `${home}/favourites.png`} alt="" fill className="object-cover" />
             </div>
-            <div className="relative aspect-[4/5] overflow-hidden bg-gray-light">
+            <div className="relative min-h-0 overflow-hidden bg-gray-light">
               <Image src={imgSrc('right_small_2') || `${home}/favourites.png`} alt="" fill className="object-cover" />
             </div>
           </div>

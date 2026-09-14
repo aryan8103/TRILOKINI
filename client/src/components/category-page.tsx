@@ -32,11 +32,11 @@ function CategoryMosaicTile({
           className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
         />
 
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent px-[8px] pb-[8px] pt-[32px] lg:px-[12px] lg:pb-[14px] lg:pt-[54px]">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.48px] text-white lg:text-[16px] lg:tracking-[0.64px]">
+        <div className="absolute inset-x-0 bottom-[24px] flex flex-col items-center px-2 text-center lg:bottom-[40px]">
+          <h2 className="text-[12px] font-bold uppercase leading-[13px] tracking-[0.48px] text-white lg:text-[16px] lg:leading-[31px] lg:tracking-[0.64px]">
             {title}
           </h2>
-          <p className="mt-[2px] text-[9px] font-semibold uppercase tracking-[0.2px] text-white lg:mt-[2px] lg:text-[14px] lg:tracking-[0.56px]">
+          <p className="mt-[2px] text-[10px] font-semibold uppercase leading-[13px] tracking-[0.2px] text-white lg:mt-0 lg:text-[14px] lg:leading-[31px] lg:tracking-[0.56px]">
             {subtitle}
           </p>
         </div>
@@ -45,65 +45,82 @@ function CategoryMosaicTile({
   );
 }
 
-function CategoryContent({ categories }: { categories: Category[] }) {
-  const items = categories;
-
-  const mobileLayout = [
-    { index: 0, className: "aspect-[192/288]" },
-    { index: 1, className: "aspect-[192/288]" },
-    { index: 2, className: "aspect-[192/288]" },
-    { index: 3, className: "aspect-[192/288]" },
-    { index: 4, className: "col-span-2 aspect-[391/288]" },
-    { index: 5, className: "aspect-[192/288]" },
-    { index: 6, className: "aspect-[192/288]" },
-    { index: 7, className: "aspect-[192/288]" },
-    { index: 8, className: "aspect-[192/288]" },
-    { index: 9, className: "col-span-2 aspect-[391/288]" },
-  ];
-
-  const desktopLayout = [
-    { index: 0, className: "aspect-[330/495]" },
-    { index: 1, className: "aspect-[330/495]" },
-    { index: 2, className: "aspect-[330/495]" },
-    { index: 3, className: "aspect-[330/495]" },
-    { index: 4, className: "col-span-2 aspect-[686/506]" },
-    { index: 5, className: "aspect-[331/506]" },
-    { index: 6, className: "aspect-[330/495]" },
-    { index: 7, className: "aspect-[330/495]" },
-    { index: 8, className: "aspect-[330/495]" },
-    { index: 9, className: "col-span-2 aspect-[686/506]" },
-  ];
+function MosaicBlock({ categories }: { categories: Category[] }) {
+  const slot = (index: number) => categories[index];
 
   return (
-    <main className="pb-[58px] pt-[2px] lg:pb-[72px] lg:pt-[6px]">
-      <section className="px-[5px] pt-[10px] lg:px-6 lg:pt-[18px]">
-        <div className="grid grid-cols-2 gap-2 lg:hidden">
-          {mobileLayout.map(({ index, className }) => {
-            const item = items[index];
-            if (!item) return null;
-            return (
-              <CategoryMosaicTile
-                key={item._id}
-                category={item}
-                className={className}
-              />
-            );
-          })}
-        </div>
+    <>
+      <div className="grid grid-cols-2 gap-2 lg:hidden">
+        {slot(0) ? <CategoryMosaicTile category={slot(0)} className="aspect-[192/288]" /> : null}
+        {slot(1) ? <CategoryMosaicTile category={slot(1)} className="aspect-[192/288]" /> : null}
+        {slot(2) ? <CategoryMosaicTile category={slot(2)} className="aspect-[192/288]" /> : null}
+        {slot(3) ? <CategoryMosaicTile category={slot(3)} className="aspect-[192/288]" /> : null}
+        {slot(4) ? <CategoryMosaicTile category={slot(4)} className="col-span-2 aspect-[391/288]" /> : null}
+        {slot(5) ? <CategoryMosaicTile category={slot(5)} className="aspect-[192/294]" /> : null}
+        {slot(6) ? <CategoryMosaicTile category={slot(6)} className="aspect-[192/294]" /> : null}
+        {slot(7) ? <CategoryMosaicTile category={slot(7)} className="aspect-[192/288]" /> : null}
+        {slot(8) ? <CategoryMosaicTile category={slot(8)} className="aspect-[192/288]" /> : null}
+        {slot(9) ? <CategoryMosaicTile category={slot(9)} className="col-span-2 aspect-[391/288]" /> : null}
+      </div>
 
-        <div className="hidden grid-cols-4 gap-5 lg:grid">
-          {desktopLayout.map(({ index, className }) => {
-            const item = items[index];
-            if (!item) return null;
-            return (
-              <CategoryMosaicTile
-                key={item._id}
-                category={item}
-                className={className}
-              />
-            );
-          })}
-        </div>
+      <div className="hidden flex-col lg:flex">
+        {(slot(0) || slot(1) || slot(2) || slot(3)) && (
+          <div className="grid grid-cols-4 gap-x-[25px]">
+            {slot(0) ? <CategoryMosaicTile category={slot(0)} className="aspect-[330/495]" /> : <div />}
+            {slot(1) ? <CategoryMosaicTile category={slot(1)} className="aspect-[330/495]" /> : <div />}
+            {slot(2) ? <CategoryMosaicTile category={slot(2)} className="aspect-[330/495]" /> : <div />}
+            {slot(3) ? <CategoryMosaicTile category={slot(3)} className="aspect-[330/495]" /> : <div />}
+          </div>
+        )}
+
+        {(slot(4) || slot(5) || slot(6)) && (
+          <div className="mt-[21px] grid grid-cols-4 items-stretch gap-x-[25px]">
+            {slot(4) ? (
+              <CategoryMosaicTile category={slot(4)} className="col-span-2 col-start-1 aspect-[686/506]" />
+            ) : (
+              <div className="col-span-2 col-start-1" />
+            )}
+            {slot(5) ? (
+              <CategoryMosaicTile category={slot(5)} className="col-start-3 h-full min-h-0 self-stretch" />
+            ) : null}
+            {slot(6) ? (
+              <CategoryMosaicTile category={slot(6)} className="col-start-4 h-full min-h-0 self-stretch" />
+            ) : null}
+          </div>
+        )}
+
+        {(slot(7) || slot(8) || slot(9)) && (
+          <div className="mt-[29px] grid grid-cols-4 items-stretch gap-x-[25px]">
+            {slot(7) ? (
+              <CategoryMosaicTile category={slot(7)} className="col-start-1 h-full min-h-0 self-stretch" />
+            ) : null}
+            {slot(8) ? (
+              <CategoryMosaicTile category={slot(8)} className="col-start-2 h-full min-h-0 self-stretch" />
+            ) : null}
+            {slot(9) ? (
+              <CategoryMosaicTile category={slot(9)} className="col-span-2 col-start-3 aspect-[686/506]" />
+            ) : (
+              <div className="col-span-2 col-start-3 aspect-[686/506]" />
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function CategoryContent({ categories }: { categories: Category[] }) {
+  const blocks: Category[][] = [];
+  for (let i = 0; i < categories.length; i += 10) {
+    blocks.push(categories.slice(i, i + 10));
+  }
+
+  return (
+    <main className="pb-[58px] pt-[4px] lg:pb-[72px] lg:pt-[20px]">
+      <section className="space-y-2 px-[5px] lg:space-y-[29px] lg:px-6">
+        {blocks.map((block, index) => (
+          <MosaicBlock key={block[0]?._id || index} categories={block} />
+        ))}
       </section>
     </main>
   );

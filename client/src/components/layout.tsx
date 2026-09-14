@@ -99,22 +99,38 @@ export function DesktopHeader() {
 
 export function MobileHeader({ onMenu }: { onMenu?: () => void }) {
   const { openCart, itemCount } = useCart();
-  const { user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
-      <header className="flex h-[51px] items-center justify-between border-b border-gray-light bg-white px-1 lg:hidden" aria-label="Mobile header">
-        <IconButton label="Open menu" icon={icons.menu} onClick={onMenu} className="size-10" />
-        <Link href="/">
-          <Image src="/logos/trilokini-header.png" alt="Trilokini" width={119} height={50} className="h-[50px] w-[119px] object-contain" priority />
+      <header className="relative flex h-[50px] items-center justify-between bg-white px-[9px] lg:hidden" aria-label="Mobile header">
+        <button
+          type="button"
+          aria-label="Open menu"
+          onClick={onMenu}
+          className="relative z-10 inline-flex size-[20px] shrink-0 items-center justify-center"
+        >
+          <Image src={icons.menu} alt="" width={20} height={20} className="size-[20px] object-cover" />
+        </button>
+        <Link href="/" className="absolute left-1/2 top-px z-0 h-[50px] w-[118.5px] -translate-x-1/2">
+          <Image src="/logos/trilokini-header.png" alt="Trilokini" width={119} height={50} className="h-[50px] w-[118.5px] object-cover" priority />
         </Link>
-        <div className="flex items-center">
-          <IconButton label="Search" icon={icons.search} onClick={() => setSearchOpen(true)} />
-          <Link href={user ? "/account" : "/login"}><IconButton label="Account" icon={icons.account} /></Link>
-          <button type="button" onClick={openCart} className="relative inline-flex size-10 items-center justify-center" aria-label="Open cart">
-            <Image src={icons.cart} alt="" width={24} height={24} />
-            {itemCount > 0 ? <span className="absolute right-1 top-1 size-2 rounded-full bg-black" /> : null}
+        <div className="relative z-10 flex items-center gap-[6px]">
+          <button type="button" aria-label="Search" onClick={() => setSearchOpen(true)} className="inline-flex size-[21px] items-center justify-center">
+            <Image src={icons.search} alt="" width={21} height={21} className="size-[21px] object-cover" />
+          </button>
+          <a
+            href="https://wa.me/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+            className="inline-flex size-[21px] items-center justify-center"
+          >
+            <Image src={icons.whatsapp} alt="" width={21} height={21} className="size-[21px] object-cover" />
+          </a>
+          <button type="button" onClick={openCart} className="relative inline-flex size-[21px] items-center justify-center" aria-label="Open cart">
+            <Image src={icons.cart} alt="" width={21} height={21} className="size-[21px] object-cover" />
+            {itemCount > 0 ? <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-black" /> : null}
           </button>
         </div>
       </header>

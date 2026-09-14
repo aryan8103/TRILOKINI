@@ -6,6 +6,8 @@ import type { FilmArticle } from "@/lib/types";
 
 export const metadata = { title: "Films | Trilokini" };
 
+
+
 const home = "/images/home";
 
 type MosaicSlot = { src: string; href: string; alt: string };

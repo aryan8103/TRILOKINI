@@ -52,11 +52,11 @@ export function DesktopHeader() {
           <Image src="/logos/trilokini-header.png" alt="Trilokini" width={182} height={139} className="h-[139px] w-[182px] object-cover" priority />
         </Link>
         <div className="relative h-[max(109px,7.57vw)] border-b border-gray-light shadow-[0_1px_4px_rgba(0,0,0,0.13)]">
-          <div className="flex h-[max(78px,5.41vw)] w-full items-center justify-between px-[max(40px,2.77vw)] text-[length:max(14px,0.97vw)] font-medium tracking-[0.56px]">
-            <div className="flex items-center gap-[max(40px,2.77vw)]">
+          <div className="flex h-[max(78px,5.41vw)] w-full items-center justify-between px-[max(40px,2.77vw)]">
+            <div className="flex items-center gap-[max(40px,2.77vw)] text-[12px] font-semibold leading-[15px] text-black">
               <div className="flex items-center gap-[max(8px,0.55vw)]">
                 <span>INR</span>
-                <Image src={icons.sort} alt="" width={10} height={10} className="h-[max(10px,0.69vw)] w-[max(10px,0.69vw)]" />
+                <Image src={icons.sort} alt="" width={10} height={10} className="h-[10px] w-[10px]" />
               </div>
               {user ? (
                 <Link href="/account" className="hover:underline">ACCOUNT</Link>
@@ -83,7 +83,7 @@ export function DesktopHeader() {
               </button>
             </div>
           </div>
-          <nav className="absolute bottom-0 left-1/2 flex w-[max(933px,64.79vw)] -translate-x-1/2 justify-between px-[max(20px,1.38vw)] pb-[max(8px,0.55vw)] text-[length:max(13px,0.9vw)] font-medium tracking-[0.36px]" aria-label="Category navigation">
+          <nav className="absolute bottom-0 left-1/2 flex w-[max(933px,64.79vw)] -translate-x-1/2 justify-between px-[max(20px,1.38vw)] pb-[max(8px,0.55vw)] text-[12px] font-medium leading-[15px] text-black" aria-label="Category navigation">
             {categoryNav.map((item) => (
               <Link key={item.href} href={item.href} className={item.highlight ? "text-sale-nav" : "hover:text-gray"}>
                 {item.label}

@@ -51,7 +51,7 @@ export function ProductListingView({ category, search, sort = "Popular", page = 
   return (
     <PageShell>
       <ContentContainer>
-        <div className="hidden items-center justify-end border-b border-gray-light bg-white px-0 pb-2 pt-2 lg:flex">
+        <div className="hidden items-center justify-end bg-white px-0 pb-2 pt-2 lg:flex">
           <label className="flex items-center gap-2 text-[12px] font-medium tracking-[0.36px] text-[#3f3f3f]">
             <span>Sort by</span>
             <select

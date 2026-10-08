@@ -6,6 +6,36 @@ export type ProductVariant = {
   discountPercentage?: number;
 };
 
+export type BespokeSelection = {
+  groupId: string;
+  choiceId?: string;
+  asIs?: boolean;
+};
+
+export type BespokeCustomization = {
+  groupId: string;
+  choiceId: string;
+  section: string;
+  title: string;
+  choice: string;
+  price: number;
+};
+
+export type BespokeOptionChoice = {
+  id: string;
+  label: string;
+  imageUrl: string;
+};
+
+export type BespokeOptionGroup = {
+  id: string;
+  section: string;
+  title: string;
+  price: number;
+  allowAsIs: boolean;
+  choices: BespokeOptionChoice[];
+};
+
 export type Product = {
   id: string;
   categoryId?: string;
@@ -29,6 +59,8 @@ export type Product = {
   customTailoringEnabled?: boolean;
   customTailoringPrice?: number;
   isBespoke?: boolean;
+  bespokeCollectionId?: string;
+  bespokeOptions?: BespokeOptionGroup[];
   addons?: ProductAddon[];
 };
 
@@ -73,6 +105,12 @@ export type CartLineItem = {
   quantity: number;
   productCode?: string;
   estimatedShipping?: string;
+  isBespoke?: boolean;
+  colorIndex?: number;
+  addons?: { addonId?: string; name?: string; size?: string }[];
+  bespokeSelections?: BespokeSelection[];
+  bespokeCustomizations?: BespokeCustomization[];
+  customizationKey?: string;
 };
 
 export type CartSummary = {
@@ -187,6 +225,7 @@ export type Order = {
     bottomSize?: string;
     color?: string;
     addons?: { name: string; price: number; size?: string }[];
+    bespokeCustomizations?: BespokeCustomization[];
     unitPrice: number;
     quantity: number;
     lineTotal: number;

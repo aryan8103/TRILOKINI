@@ -54,26 +54,15 @@ export const mockFilmArticles: FilmArticle[] = [
   },
 ];
 
-export const mockGiftCards: GiftCard[] = [
-  {
-    id: "gc-1",
-    title: "Trilokini Gift Card",
-    description: "The perfect gift for the fashion lover in your life. Redeemable on all products.",
-    imageUrl: `${home}/desktop-hero.png`,
-    amounts: [5000, 10000, 25000, 50000],
-    minAmount: 1000,
-    maxAmount: 100000,
-  },
-  {
-    id: "gc-2",
-    title: "Wedding Gift Card",
-    description: "Celebrate their special day with a curated wedding wardrobe gift.",
-    imageUrl: `${home}/wedding-sunlit.png`,
-    amounts: [10000, 25000, 50000, 100000],
-    minAmount: 5000,
-    maxAmount: 200000,
-  },
-];
+export const mockGiftCards: GiftCard[] = Array.from({ length: 15 }, (_, index) => ({
+  id: `gc-${index + 1}`,
+  title: "THANKSGIVING GIFT CARD",
+  description: "Make this Thanksgiving extra special",
+  imageUrl: "/images/gift-cards/for-a-little-happiness.png",
+  amounts: [5000, 10000, 25000, 50000],
+  minAmount: 1000,
+  maxAmount: 100000,
+}));
 
 export const mockFAQ: FAQItem[] = [
   { id: "1", question: "How do I track my order?", answer: "Once your order ships, you will receive a tracking link via email and SMS. You can also track orders from your account page." },

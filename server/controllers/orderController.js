@@ -68,6 +68,7 @@ const create = async (req, res) => {
         bottomSize: item.bottomSize,
         colorIndex: item.colorIndex ?? 0,
         addons: item.addons ?? [],
+        bespokeSelections: item.bespokeSelections ?? [],
         quantity: item.quantity ?? 1,
       });
 
@@ -86,6 +87,7 @@ const create = async (req, res) => {
         bottomSize: lineItem.bottomSize,
         color: lineItem.color,
         addons: lineItem.addons,
+        bespokeCustomizations: lineItem.bespokeCustomizations,
         unitPrice: lineItem.unitPrice,
         quantity: lineItem.quantity,
         lineTotal: lineItem.lineTotal,

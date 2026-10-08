@@ -54,6 +54,8 @@ export const footerLinks = {
     { label: "Blogs", href: "/films" },
     { label: "Careers", href: "/pages/careers" },
     { label: "Store Locator", href: "/contact" },
+    { label: "Happiness Gift Card", href: "/gift-cards" },
+    { label: "Talk to Resham", href: "/talk-to-resham" },
   ],
   "OUR POLICIES": [
     { label: "FAQ's", href: "/faq" },

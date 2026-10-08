@@ -1,5 +1,5 @@
 import type { ApiProduct } from "@/lib/api";
-import { getProductById as apiGetProductById, getProducts as apiGetProducts } from "@/lib/api";
+import { getProductById as apiGetProductById, getProducts as apiGetProducts, getProductsByBespokeCollection } from "@/lib/api";
 import { resolveImage } from "@/lib/images";
 import { getMockProductList, getMockRelatedProducts } from "@/lib/mocks/products";
 import type { Product, ProductListParams, ProductListResult } from "@/lib/types";
@@ -20,6 +20,8 @@ function apiToProduct(p: ApiProduct): Product {
   return {
     id: p._id,
     categoryId: typeof p.category === "object" ? p.category._id : p.category,
+    bespokeCollectionId: typeof p.bespokeCollection === "object" ? p.bespokeCollection._id : p.bespokeCollection,
+    isBespoke: Boolean(p.bespokeCollection),
     title: p.title,
     subtitle: p.subtitle,
     designerName: p.designerName || "TRILOKINI",
@@ -45,6 +47,18 @@ function apiToProduct(p: ApiProduct): Product {
     supplierInfo: p.supplierInfo,
     customTailoringEnabled: p.customTailoringEnabled ?? true,
     customTailoringPrice: p.customTailoringPrice || 0,
+    bespokeOptions: p.bespokeOptions?.map((group) => ({
+      id: group._id,
+      section: group.section,
+      title: group.title,
+      price: group.price || 0,
+      allowAsIs: group.allowAsIs,
+      choices: group.choices.map((choice) => ({
+        id: choice._id,
+        label: choice.label,
+        imageUrl: resolveImage(choice.imageUrl),
+      })),
+    })),
     addons: p.addons?.map((a) => ({
       id: a._id || a.name,
       name: a.name,
@@ -98,6 +112,11 @@ export async function getProduct(id: string): Promise<Product | null> {
   const apiProduct = await apiGetProductById(id);
   if (apiProduct?._id) return apiToProduct(apiProduct);
   return null;
+}
+
+export async function getBespokeProductList(collectionId: string): Promise<Product[]> {
+  const products = await getProductsByBespokeCollection(collectionId);
+  return Array.isArray(products) ? products.map(apiToProduct) : [];
 }
 
 export async function getRelatedProducts(id: string, limit = 5): Promise<Product[]> {

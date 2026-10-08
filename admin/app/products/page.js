@@ -1,30 +1,55 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getProducts, createProduct, updateProduct, deleteProduct, getCategories } from "../../api";
+import { getProducts, createProduct, updateProduct, deleteProduct, getCategories, getBespokeCollections } from "../../api";
 import { resolveImage } from "../../utils";
 import DataTable from "../../components/DataTable";
 import FormModal from "../../components/FormModal";
 import { PageToolbar, StatusBadge, EmptyThumb } from "../../components/ui";
 import { Plus } from "lucide-react";
 
+const DEFAULT_BESPOKE_OPTIONS = [
+  ["PRINTS", "Choose your Colour"],
+  ["PRINTS", "Choose your Boota"],
+  ["PRINTS", "Choose your Jaal"],
+  ["PRINTS", "Choose your Border"],
+  ["SAREE HIGHLIGHTS", "Choose your Embroidery"],
+  ["SAREE HIGHLIGHTS", "Choose your Chaam"],
+  ["BLOUSE STITCHING", "Same Design"],
+  ["BLOUSE STITCHING", "Front Design"],
+  ["BLOUSE STITCHING", "Back Design"],
+  ["BLOUSE STITCHING", "Sleeve's Design"],
+  ["BLOUSE HIGHLIGHTS", "Choose your Embroidery"],
+  ["BLOUSE HIGHLIGHTS", "Choose your Chaam"],
+].map(([section, title]) => ({ section, title, price: 1000, allowAsIs: true, choices: [] }));
+
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [bespokeCollections, setBespokeCollections] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("");
 
-  useEffect(() => { fetchData(); }, []);
-
   const fetchData = async () => {
     try {
-      const [prodRes, catRes] = await Promise.all([getProducts(), getCategories()]);
+      const [prodRes, catRes, bespokeRes] = await Promise.all([getProducts(), getCategories(), getBespokeCollections()]);
       setProducts(prodRes.data || []);
       setCategories(catRes.data || []);
+      setBespokeCollections(bespokeRes.data || []);
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    Promise.all([getProducts(), getCategories(), getBespokeCollections()])
+      .then(([prodRes, catRes, bespokeRes]) => {
+        setProducts(prodRes.data || []);
+        setCategories(catRes.data || []);
+        setBespokeCollections(bespokeRes.data || []);
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
   const handleOpenModal = (product = null) => {
     setEditingProduct(product);
@@ -39,6 +64,11 @@ export default function ProductsPage() {
 
   const handleSubmit = async (data) => {
     const payload = { ...data };
+    if (!payload.bespokeCollection || payload.bespokeCollection === "none") {
+      delete payload.bespokeCollection;
+      delete payload.bespokeOptions;
+    }
+    else payload.bespokeOptions = payload.bespokeOptions || [];
     if (typeof payload.sizes === "string" && payload.sizes) {
       payload.sizes = payload.sizes.split(",").map((s) => s.trim()).filter(Boolean);
     }
@@ -66,6 +96,7 @@ export default function ProductsPage() {
     },
     { key: "title", label: "Title", render: (val, row) => <div><p className="font-medium text-white">{val}</p><p className="text-xs" style={{ color: "var(--text-muted)" }}>{row.category?.title}</p></div> },
     { key: "designerName", label: "Designer", render: (val) => val || "—" },
+    { key: "bespokeCollection", label: "Bespoke collection", render: (val) => bespokeCollections.find((collection) => collection._id === (val?._id || val))?.title || "—" },
     { key: "currentPrice", label: "Price", render: (val) => `₹${val?.toLocaleString("en-IN")}` },
     { key: "discountPercentage", label: "Discount", render: (val) => val ? `${val}%` : "—" },
     { key: "showInHomePage", label: "Homepage", render: (val) => <StatusBadge value={val} /> },
@@ -73,6 +104,8 @@ export default function ProductsPage() {
 
   const formFields = [
     { name: "category", label: "Category", type: "select", options: categories.map((c) => ({ label: c.title, value: c._id })), required: true },
+    { name: "bespokeCollection", label: "Bespoke collection", type: "select", options: [{ label: "Not a bespoke product", value: "none" }, ...bespokeCollections.map((c) => ({ label: c.title, value: c._id }))] },
+    { name: "bespokeOptions", label: "Bespoke customization choices", type: "bespokeOptions" },
     { name: "title", label: "Title", type: "text", required: true },
     { name: "imageUrl", label: "Primary image", type: "image", aspectRatio: 336 / 505 },
     { name: "subtitle", label: "Subtitle", type: "text" },
@@ -113,9 +146,10 @@ export default function ProductsPage() {
         initialData={editingProduct ? {
           ...editingProduct,
           category: editingProduct.category?._id || editingProduct.category,
+          bespokeCollection: editingProduct.bespokeCollection?._id || editingProduct.bespokeCollection || "none",
           sizes: Array.isArray(editingProduct.sizes) ? editingProduct.sizes.join(", ") : editingProduct.sizes,
           bottomSizes: Array.isArray(editingProduct.bottomSizes) ? editingProduct.bottomSizes.join(", ") : editingProduct.bottomSizes,
-        } : { customTailoringEnabled: true, addons: [] }}
+        } : { customTailoringEnabled: true, addons: [], bespokeCollection: "none", bespokeOptions: DEFAULT_BESPOKE_OPTIONS }}
         onSubmit={handleSubmit}
       />
     </div>

@@ -34,7 +34,7 @@ export default function ImageUpload({ value, onChange, aspectRatio }) {
         <ImageCropperModal imageSrc={imageToCrop} onCropCancel={() => { setImageToCrop(null); setOriginalFile(null); }} onCropDone={() => {}} aspectRatio={aspectRatio} />
       )}
       {value ? (
-        <div className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border" style={{ borderColor: 'var(--border-color)', background: 'var(--input-bg)' }}>
+        <div className="group relative flex w-full items-center justify-center overflow-hidden rounded-xl border" style={{ aspectRatio: aspectRatio || 16 / 9, borderColor: 'var(--border-color)', background: 'var(--input-bg)' }}>
           <img src={value} alt="Uploaded preview" className="h-full w-full object-contain" />
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
             <button type="button" onClick={() => onChange('')} className="rounded-full bg-[var(--danger)] p-2 text-white">
@@ -45,7 +45,7 @@ export default function ImageUpload({ value, onChange, aspectRatio }) {
       ) : (
         <div className="relative">
           <input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed" />
-          <div className="flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8" style={{ borderColor: isUploading ? 'var(--primary-teal)' : 'var(--border-color)', background: 'var(--input-bg)' }}>
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-3 text-center" style={{ aspectRatio: aspectRatio || 16 / 9, borderColor: isUploading ? 'var(--primary-teal)' : 'var(--border-color)', background: 'var(--input-bg)' }}>
             {isUploading ? (
               <>
                 <Loader2 size={28} className="animate-spin" style={{ color: 'var(--primary-teal)' }} />

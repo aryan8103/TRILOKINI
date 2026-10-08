@@ -11,20 +11,24 @@ function getVariantPrice(product, colorIndex = 0) {
   return variant?.currentPrice ?? product.currentPrice ?? 0;
 }
 
-function calculateLineItem(product, { size, bottomSize, colorIndex = 0, addons = [], quantity = 1 }) {
+function calculateLineItem(product, { size, bottomSize, colorIndex = 0, addons = [], bespokeSelections = [], quantity = 1 }) {
   const sizes = getProductSizes(product);
-  if (!sizes.includes(size)) {
+  const isCustomTailored = size === 'Custom Tailored' && product.customTailoringEnabled;
+  if (!sizes.includes(size) && !isCustomTailored) {
     throw new Error(`Invalid size: ${size}`);
   }
 
-  const stock = product.stockBySize?.get?.(size) ?? product.stockBySize?.[size];
+  const stock = isCustomTailored ? undefined : product.stockBySize?.get?.(size) ?? product.stockBySize?.[size];
   if (stock !== undefined && stock !== null && stock <= 0) {
     throw new Error(`Size ${size} is out of stock`);
   }
 
   const unitPrice = getVariantPrice(product, colorIndex);
+  const tailoringPrice = isCustomTailored ? Number(product.customTailoringPrice || 0) : 0;
   let addonsTotal = 0;
+  let bespokeTotal = 0;
   const resolvedAddons = [];
+  const resolvedBespokeCustomizations = [];
 
   for (const addonInput of addons) {
     const addon = product.addons?.find((a) => a._id?.toString() === addonInput.addonId || a.name === addonInput.name);
@@ -42,7 +46,43 @@ function calculateLineItem(product, { size, bottomSize, colorIndex = 0, addons =
     });
   }
 
-  const lineTotal = (unitPrice + addonsTotal) * quantity;
+  for (const selection of bespokeSelections) {
+    if (!product.bespokeCollection) throw new Error('This product is not available for bespoke customization');
+    const optionGroup = product.bespokeOptions?.find((group) => group._id.toString() === selection.groupId);
+    if (selection.asIs) {
+      if (!optionGroup?.allowAsIs) throw new Error('This bespoke customization cannot be ordered as-is');
+      if (resolvedBespokeCustomizations.some((item) => item.groupId === selection.groupId)) {
+        throw new Error('Only one choice can be selected for each bespoke customization');
+      }
+      resolvedBespokeCustomizations.push({
+        groupId: optionGroup._id.toString(),
+        choiceId: 'as-is',
+        section: optionGroup.section,
+        title: optionGroup.title,
+        choice: 'As is',
+        price: 0,
+      });
+      continue;
+    }
+    const choice = optionGroup?.choices?.find((item) => item._id.toString() === selection.choiceId);
+    if (!optionGroup || !choice) throw new Error('Invalid bespoke customization choice');
+    if (resolvedBespokeCustomizations.some((item) => item.groupId === selection.groupId)) {
+      throw new Error('Only one choice can be selected for each bespoke customization');
+    }
+
+    const price = Number(optionGroup.price || 0);
+    bespokeTotal += price;
+    resolvedBespokeCustomizations.push({
+      groupId: optionGroup._id.toString(),
+      choiceId: choice._id.toString(),
+      section: optionGroup.section,
+      title: optionGroup.title,
+      choice: choice.label,
+      price,
+    });
+  }
+
+  const lineTotal = (unitPrice + tailoringPrice + addonsTotal + bespokeTotal) * quantity;
 
   const variant = product.variants?.[colorIndex];
   return {
@@ -54,16 +94,17 @@ function calculateLineItem(product, { size, bottomSize, colorIndex = 0, addons =
     bottomSize,
     color: variant?.color,
     addons: resolvedAddons,
-    unitPrice: unitPrice + addonsTotal,
+    unitPrice: unitPrice + tailoringPrice + addonsTotal + bespokeTotal,
     quantity,
     lineTotal,
+    bespokeCustomizations: resolvedBespokeCustomizations,
   };
 }
 
 const calculatePrice = async (req, res) => {
   try {
     const { productId } = req.params;
-    const { size, bottomSize, colorIndex = 0, addons = [], quantity = 1 } = req.body;
+    const { size, bottomSize, colorIndex = 0, addons = [], bespokeSelections = [], quantity = 1 } = req.body;
 
     if (!size) {
       return res.status(400).json({ message: 'Size is required' });
@@ -74,7 +115,7 @@ const calculatePrice = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    const lineItem = calculateLineItem(product, { size, bottomSize, colorIndex, addons, quantity });
+    const lineItem = calculateLineItem(product, { size, bottomSize, colorIndex, addons, bespokeSelections, quantity });
 
     res.json({
       valid: true,
@@ -115,6 +156,7 @@ const calculateCart = async (req, res) => {
         bottomSize: item.bottomSize,
         colorIndex: item.colorIndex ?? 0,
         addons: item.addons ?? [],
+        bespokeSelections: item.bespokeSelections ?? [],
         quantity: item.quantity ?? 1,
       });
 

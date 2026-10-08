@@ -32,6 +32,7 @@ const navGroups = [
       { name: "Wedding Studio", href: "/wedding", icon: Heart },
       { name: "Favourites", href: "/favourites", icon: Bookmark },
       { name: "Collections", href: "/collections", icon: Layers },
+      { name: "Bespoke Collections", href: "/bespoke-collections", icon: Scissors },
       { name: "Collection Images", href: "/collection-images", icon: Images },
     ]
   }

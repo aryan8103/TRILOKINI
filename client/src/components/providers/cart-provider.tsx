@@ -54,7 +54,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (parsed) {
           const newItems = [...parsed.items];
           for (const item of anonCart.items) {
-             const existing = newItems.find((i: CartLineItem) => i.productId === item.productId && i.size === item.size);
+             const existing = newItems.find((i: CartLineItem) =>
+               i.productId === item.productId &&
+               i.size === item.size &&
+               i.customizationKey === item.customizationKey
+             );
              if (existing) {
                existing.quantity += item.quantity;
              } else {
@@ -87,7 +91,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartLineItem, "id" | "quantity"> & { quantity?: number }) => {
     setCart((prev) => {
-      const existing = prev.items.find((i) => i.productId === item.productId && i.size === item.size);
+      const existing = prev.items.find((i) =>
+        i.productId === item.productId &&
+        i.size === item.size &&
+        i.customizationKey === item.customizationKey
+      );
       let items: CartLineItem[];
       if (existing) {
         items = prev.items.map((i) =>

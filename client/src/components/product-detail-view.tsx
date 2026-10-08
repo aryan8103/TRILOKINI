@@ -18,19 +18,21 @@ function SizeButton({
   onClick,
   lowStock,
   disabled,
+  prominent = false,
 }: {
   size: string;
   selected: boolean;
   onClick: () => void;
   lowStock?: boolean;
   disabled?: boolean;
+  prominent?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`relative h-11 min-w-[48px] border px-3 text-[13px] font-semibold tracking-[0.65px] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`relative border transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${prominent ? "h-[55px] w-[60px] px-2 text-[20px] font-normal" : "h-11 min-w-[48px] px-3 text-[13px] font-semibold tracking-[0.65px]"} ${
         selected ? "border-black bg-black text-white" : "border-gray-light bg-white text-black hover:border-black"
       }`}
     >
@@ -326,9 +328,9 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
           <div className="my-5 border-t border-gray-light" />
 
           <div>
-            <p className="mb-3 text-[13px] font-semibold tracking-[0.65px]">
+            <p className="mb-4 text-[16px] font-medium tracking-normal">
               Select Your Size{" "}
-              <button type="button" className="text-action underline-offset-2 ">Size Guide</button>
+              <button type="button" className="text-action">Size Guide</button>
             </p>
             <button
               type="button"
@@ -338,11 +340,12 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
               <span className={selectedSize ? "text-black" : "text-gray"}>{selectedSize || "Select Size"}</span>
               <span className="text-gray">▼</span>
             </button>
-            <div className="hidden flex-wrap gap-2 lg:flex">
+            <div className="hidden flex-wrap gap-[10px] lg:flex">
               {sizes.map((size) => (
                 <SizeButton
                   key={size}
                   size={size}
+                  prominent
                   selected={selectedSize === size}
                   onClick={() => setSelectedSize(selectedSize === size ? undefined : size)}
                   lowStock={isLowStock(size)}
@@ -354,19 +357,19 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
               <button
                 type="button"
                 onClick={() => setCustomTailoredOpen(true)}
-                className="mt-3 inline-block text-[12px] font-semibold tracking-[0.6px] underline underline-offset-2"
+                className="mt-4 inline-block text-[20px] font-normal leading-[24px] tracking-normal underline underline-offset-2"
               >
                 CUSTOM TAILORING {product.customTailoringPrice ? `(+ ${formatPrice(product.customTailoringPrice)})` : ""}
               </button>
             ) : null}
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-[15px]">
             <button
               type="button"
               disabled={loading}
               onClick={() => handleAction(onBuyNow)}
-              className="h-10 border border-black bg-black text-[13px] font-semibold tracking-[0.65px] text-white hover:bg-gray-900 disabled:opacity-50"
+              className="h-[50px] border border-black bg-black text-[20px] font-normal tracking-normal text-white hover:bg-gray-900 disabled:opacity-50"
             >
               BUY NOW
             </button>
@@ -374,7 +377,7 @@ export function ProductDetailView({ product, relatedProducts, onAddToCart, onBuy
               type="button"
               disabled={loading}
               onClick={() => handleAction(onAddToCart)}
-              className="h-10 border border-black bg-white text-[13px] font-semibold tracking-[0.65px] hover:bg-gray-50 disabled:opacity-50"
+              className="h-[50px] border border-black bg-white text-[20px] font-normal tracking-normal hover:bg-gray-50 disabled:opacity-50"
             >
               ADD TO CART
             </button>

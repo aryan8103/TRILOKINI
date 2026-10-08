@@ -28,11 +28,28 @@ const addonSchema = new mongoose.Schema({
   sizes: [{ type: String }],
 }, { _id: true });
 
+const bespokeOptionChoiceSchema = new mongoose.Schema({
+  label: { type: String, required: true, trim: true },
+  imageUrl: { type: String, default: '' },
+}, { _id: true });
+
+const bespokeOptionSchema = new mongoose.Schema({
+  section: { type: String, required: true, trim: true },
+  title: { type: String, required: true, trim: true },
+  price: { type: Number, default: 0, min: 0 },
+  allowAsIs: { type: Boolean, default: true },
+  choices: [bespokeOptionChoiceSchema],
+}, { _id: true });
+
 const productSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
     required: true,
+  },
+  bespokeCollection: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'BespokeCollection',
   },
   title: {
     type: String,
@@ -62,6 +79,7 @@ const productSchema = new mongoose.Schema({
     default: {},
   },
   addons: [addonSchema],
+  bespokeOptions: [bespokeOptionSchema],
   customTailoringEnabled: { type: Boolean, default: true },
   customTailoringPrice: { type: Number, default: 0 },
   tags: [{ type: String, trim: true }],

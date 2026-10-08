@@ -453,7 +453,7 @@ export function Footer() {
   );
 }
 
-export function ResponsiveShell({ children }: { children: React.ReactNode }) {
+export function ResponsiveShell({ children, hideMobileStickyNav = false }: { children: React.ReactNode; hideMobileStickyNav?: boolean }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { cart, isOpen, closeCart, removeItem } = useCart();
 
@@ -463,7 +463,7 @@ export function ResponsiveShell({ children }: { children: React.ReactNode }) {
     designer: item.designerName,
     name: item.title,
     price: `Rs. ${item.price.toLocaleString("en-IN")}`,
-    href: `/products/${item.productId}`,
+    href: `${item.isBespoke ? "/bespoke" : ""}/products/${item.productId}`,
   }));
 
   return (
@@ -473,7 +473,7 @@ export function ResponsiveShell({ children }: { children: React.ReactNode }) {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {sidebarOpen ? <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setSidebarOpen(false)} /> : null}
       {children}
-      <MobileStickyNav />
+      {hideMobileStickyNav ? null : <MobileStickyNav />}
       <CartPopout open={isOpen} items={cartProducts} onClose={closeCart} onRemove={removeItem} />
       <AuthModal />
     </>

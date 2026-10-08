@@ -68,6 +68,74 @@ function AddonsEditor({ value = [], onChange }) {
   );
 }
 
+function BespokeOptionsEditor({ value = [], onChange }) {
+  const groups = Array.isArray(value) ? value : [];
+  const updateGroup = (index, changes) => {
+    onChange(groups.map((group, groupIndex) => groupIndex === index ? { ...group, ...changes } : group));
+  };
+
+  return (
+    <div className="space-y-4">
+      {groups.map((group, groupIndex) => (
+        <div key={group._id || groupIndex} className="space-y-4 rounded-xl border border-[var(--border-color)] bg-[var(--card-elevated)] p-4">
+          <div className="grid grid-cols-2 gap-3">
+            <input className="admin-input" aria-label="Customization section" placeholder="Section, e.g. PRINTS" value={group.section || ""} onChange={(event) => updateGroup(groupIndex, { section: event.target.value })} />
+            <input className="admin-input" aria-label="Customization title" placeholder="Choice title" value={group.title || ""} onChange={(event) => updateGroup(groupIndex, { title: event.target.value })} />
+            <input className="admin-input" aria-label="Customization price" type="number" min="0" placeholder="Additional price" value={group.price ?? 0} onChange={(event) => updateGroup(groupIndex, { price: Number(event.target.value) })} />
+            <label className="flex items-center gap-2 text-sm text-white">
+              <input type="checkbox" checked={group.allowAsIs !== false} onChange={(event) => updateGroup(groupIndex, { allowAsIs: event.target.checked })} />
+              Allow “as is”
+            </label>
+          </div>
+          <div className="space-y-3">
+            {group.choices?.map((choice, choiceIndex) => (
+              <div key={choice._id || choiceIndex} className="grid grid-cols-[minmax(0,1fr)_160px_auto] items-start gap-3 rounded-lg border border-[var(--border-color)] p-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Choice name</label>
+                  <input
+                    className="admin-input"
+                    aria-label="Choice name"
+                    placeholder="e.g. Floral jaal"
+                    value={choice.label || ""}
+                    onChange={(event) => updateGroup(groupIndex, { choices: group.choices.map((item, index) => index === choiceIndex ? { ...item, label: event.target.value } : item) })}
+                  />
+                </div>
+                <div>
+                  <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Option image</span>
+                  <ImageUpload
+                    value={choice.imageUrl}
+                    onChange={(imageUrl) => updateGroup(groupIndex, { choices: group.choices.map((item, index) => index === choiceIndex ? { ...item, imageUrl } : item) })}
+                    aspectRatio={131 / 171}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateGroup(groupIndex, { choices: group.choices.filter((_, index) => index !== choiceIndex) })}
+                  className="mt-7 text-[var(--danger)]"
+                  aria-label="Remove choice"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between">
+            <button type="button" onClick={() => updateGroup(groupIndex, { choices: [...(group.choices || []), { label: "", imageUrl: "" }] })} className="admin-btn-ghost"><Plus size={15} /> Add image choice</button>
+            <button type="button" onClick={() => onChange(groups.filter((_, index) => index !== groupIndex))} className="admin-btn-ghost text-[var(--danger)]">Remove group</button>
+          </div>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...groups, { section: "PRINTS", title: "", price: 0, allowAsIs: true, choices: [] }])}
+        className="admin-btn-ghost w-full"
+      >
+        <Plus size={16} /> Add customization group
+      </button>
+    </div>
+  );
+}
+
 export default function FormModal({ isOpen, onClose, title, fields, initialData = null, onSubmit }) {
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +150,7 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
         const defaultData = {};
         fields.forEach((field) => {
           if (field.type === "toggle") defaultData[field.name] = false;
-          else if (field.type === "variants" || field.type === "addons") defaultData[field.name] = [];
+          else if (field.type === "variants" || field.type === "addons" || field.type === "bespokeOptions") defaultData[field.name] = [];
           else defaultData[field.name] = "";
         });
         setFormData(defaultData);
@@ -98,6 +166,15 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
     if (missingRequired) {
       setError(`Please fill out: ${missingRequired.label}`);
       return;
+    }
+    if (formData.bespokeCollection && formData.bespokeCollection !== "none") {
+      const hasIncompleteChoice = (formData.bespokeOptions || []).some((group) =>
+        (group.choices || []).some((choice) => !choice.label?.trim() || !choice.imageUrl)
+      );
+      if (hasIncompleteChoice) {
+        setError("Each image choice needs a name and an uploaded image, or remove that choice.");
+        return;
+      }
     }
     setIsSubmitting(true);
     const sanitizedData = { ...formData };
@@ -151,6 +228,9 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
     }
     if (field.type === "addons") {
       return <AddonsEditor value={formData[field.name]} onChange={(v) => handleChange(field.name, v)} />;
+    }
+    if (field.type === "bespokeOptions") {
+      return <BespokeOptionsEditor value={formData[field.name]} onChange={(v) => handleChange(field.name, v)} />;
     }
     if (field.type === "tags") {
       return (
@@ -258,6 +338,7 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
                   if (f.name === "customTailoringPrice") {
                     return !!formData.customTailoringEnabled;
                   }
+                  if (f.name === "bespokeOptions") return !!formData.bespokeCollection && formData.bespokeCollection !== "none";
                   return true;
                 }).map((field) => (
                   <div key={field.name} className="flex flex-col">

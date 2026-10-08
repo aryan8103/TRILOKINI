@@ -91,6 +91,7 @@ export function CheckoutPageView() {
           size: item.size,
           colorIndex: item.colorIndex || 0,
           addons: item.addons || [],
+          bespokeSelections: item.bespokeSelections || [],
           bottomSize: item.bottomSize,
           quantity: item.quantity || 1,
           unitPrice: item.price,

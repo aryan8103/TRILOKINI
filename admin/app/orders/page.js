@@ -199,6 +199,20 @@ export default function OrdersPage() {
                               </div>
                             </div>
                           )}
+
+                          {item.bespokeCustomizations?.length > 0 && (
+                            <div style={{ marginTop: 12 }}>
+                              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Bespoke choices</p>
+                              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                {item.bespokeCustomizations.map((choice, j) => (
+                                  <div key={`${choice.groupId}-${j}`} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                                    <span style={{ color: "rgba(255,255,255,0.55)" }}>{choice.section} / {choice.title}: {choice.choice}</span>
+                                    <span style={{ color: "rgba(255,255,255,0.8)" }}>{choice.price ? `+₹${choice.price.toLocaleString("en-IN")}` : "Included"}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <div style={{ textAlign: "right", flexShrink: 0 }}>
                           <p style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>₹{item.lineTotal?.toLocaleString("en-IN")}</p>

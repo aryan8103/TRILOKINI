@@ -42,6 +42,13 @@ export function CartPageView() {
                       <p className="mt-1 text-[11px]">{item.title}</p>
                       {item.productCode ? <p className="mt-1 text-[9px]">CODE: {item.productCode}</p> : null}
                       <p className="mt-2 border border-black/40 inline-block px-2 py-0.5 text-[10px]">Size: {item.size}</p>
+                      {item.bespokeCustomizations?.length ? (
+                        <ul className="mt-2 space-y-1 text-[10px] text-gray">
+                          {item.bespokeCustomizations.map((customization) => (
+                            <li key={customization.groupId}>{customization.title}: {customization.choice}</li>
+                          ))}
+                        </ul>
+                      ) : null}
                       {item.estimatedShipping ? <p className="mt-2 text-[9px] uppercase">Estimated shipping: {item.estimatedShipping}</p> : null}
                     </div>
                     <div className="text-right">

@@ -1,9 +1,9 @@
 import { ResponsiveShell } from "@/components/layout";
 import { Footer } from "@/components/layout";
 
-export function PageShell({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function PageShell({ children, className = "", hideMobileStickyNav = false }: { children: React.ReactNode; className?: string; hideMobileStickyNav?: boolean }) {
   return (
-    <ResponsiveShell>
+    <ResponsiveShell hideMobileStickyNav={hideMobileStickyNav}>
       <main className={`pb-20 pt-0 lg:pb-0 ${className}`}>{children}</main>
       <Footer />
     </ResponsiveShell>

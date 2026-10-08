@@ -21,9 +21,34 @@ export type Category = {
   homePageOrder: number;
 };
 
+export type BespokeOptionChoice = {
+  _id: string;
+  label: string;
+  imageUrl: string;
+};
+
+export type BespokeOptionGroup = {
+  _id: string;
+  section: string;
+  title: string;
+  price: number;
+  allowAsIs: boolean;
+  choices: BespokeOptionChoice[];
+};
+
+export type BespokeCollection = {
+  _id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  order: number;
+  isActive: boolean;
+};
+
 export type ApiProduct = {
   _id: string;
   category: string | Category;
+  bespokeCollection?: string | BespokeCollection;
   title: string;
   subtitle: string;
   currentPrice: number;
@@ -57,6 +82,7 @@ export type ApiProduct = {
     discountPercentage?: number;
   }>;
   tags?: string[];
+  bespokeOptions?: BespokeOptionGroup[];
   isActive?: boolean;
 };
 
@@ -130,6 +156,18 @@ async function fetchProductById(productId: string): Promise<ApiProduct | null> {
   }
 }
 
+async function fetchBespokeCollectionById(collectionId: string): Promise<BespokeCollection | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/bespoke-collections/${collectionId}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?._id ? data as BespokeCollection : null;
+  } catch (error) {
+    console.error(`Failed to fetch bespoke collection ${collectionId}:`, error);
+    return null;
+  }
+}
+
 // API functions
 export const getActiveBanners = () => fetchApi<HeroBanner[]>('/api/hero-banners/active');
 export const getHomepageCategories = () => fetchApi<Category[]>('/api/categories/homepage');
@@ -139,7 +177,10 @@ export const getBulkShowProducts = () => fetchApi<HomepageProductGroup[]>('/api/
 export const getCategories = () => fetchApi<Category[]>('/api/categories');
 export const getProducts = () => fetchApi<ApiProduct[]>('/api/products');
 export const getProductsByCategory = (categoryId: string) => fetchApi<ApiProduct[]>(`/api/products/category/${categoryId}`);
+export const getProductsByBespokeCollection = (collectionId: string) => fetchApi<ApiProduct[]>(`/api/bespoke-collections/${collectionId}/products`);
 export const getProductById = (productId: string) => fetchProductById(productId);
+export const getBespokeCollectionById = (collectionId: string) => fetchBespokeCollectionById(collectionId);
+export const getActiveBespokeCollections = () => fetchApi<BespokeCollection[]>('/api/bespoke-collections/active');
 export const getDesigners = () => fetchApi<Designer[]>('/api/designers');
 export const getCelebrities = () => fetchApi<Celebrity[]>('/api/celebrities');
 export const getWeddingItems = () => fetchApi<WeddingItem[]>('/api/wedding-items');
@@ -198,6 +239,7 @@ export const calculateProductPrice = (productId: string, data: {
   bottomSize?: string;
   colorIndex?: number;
   addons?: { addonId?: string; name?: string; size?: string }[];
+  bespokeSelections?: { groupId: string; choiceId?: string; asIs?: boolean }[];
   quantity?: number;
 }) => postApi(`/api/pricing/${productId}/calculate-price`, data);
 
@@ -233,6 +275,7 @@ export const createOrder = (data: {
     colorIndex?: number;
     unitPrice?: number;
     addons?: { addonId?: string; name?: string; size?: string }[];
+    bespokeSelections?: { groupId: string; choiceId?: string; asIs?: boolean }[];
     quantity?: number;
   }[];
   discount?: number;

@@ -151,6 +151,7 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
         fields.forEach((field) => {
           if (field.type === "toggle") defaultData[field.name] = false;
           else if (field.type === "variants" || field.type === "addons" || field.type === "bespokeOptions") defaultData[field.name] = [];
+          else if (field.type === "numberList") defaultData[field.name] = "";
           else defaultData[field.name] = "";
         });
         setFormData(defaultData);
@@ -165,6 +166,11 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
     const missingRequired = fields.find((f) => f.required && (formData[f.name] === undefined || formData[f.name] === null || formData[f.name] === ""));
     if (missingRequired) {
       setError(`Please fill out: ${missingRequired.label}`);
+      return;
+    }
+    const invalidNumberList = fields.find((field) => field.type === "numberList" && field.required && !String(formData[field.name] || "").split(",").some((value) => Number(value.trim()) > 0));
+    if (invalidNumberList) {
+      setError(`Please enter at least one valid value for: ${invalidNumberList.label}`);
       return;
     }
     if (formData.bespokeCollection && formData.bespokeCollection !== "none") {
@@ -184,6 +190,9 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
       }
       if (field.type === "tags" && typeof sanitizedData[field.name] === "string") {
         sanitizedData[field.name] = sanitizedData[field.name].split(",").map((t) => t.trim()).filter(Boolean);
+      }
+      if (field.type === "numberList" && typeof sanitizedData[field.name] === "string") {
+        sanitizedData[field.name] = sanitizedData[field.name].split(",").map((value) => Number(value.trim())).filter((value) => Number.isFinite(value) && value > 0);
       }
     });
 
@@ -210,6 +219,21 @@ export default function FormModal({ isOpen, onClose, title, fields, initialData 
     if (field.type === "textarea") {
       return (
         <textarea required={field.required} value={formData[field.name] || ""} onChange={(e) => handleChange(field.name, e.target.value)} className="admin-input min-h-[96px] resize-y" placeholder={field.placeholder} />
+      );
+    }
+    if (field.type === "numberList") {
+      return (
+        <div>
+          <input
+            type="text"
+            required={field.required}
+            value={Array.isArray(formData[field.name]) ? formData[field.name].join(", ") : formData[field.name] || ""}
+            onChange={(event) => handleChange(field.name, event.target.value)}
+            className="admin-input"
+            placeholder={field.placeholder || "5000, 10000, 25000"}
+          />
+          <p className="mt-1.5 text-xs text-[var(--text-muted)]">{field.helpText || "Enter values separated by commas."}</p>
+        </div>
       );
     }
     if (field.type === "select") {

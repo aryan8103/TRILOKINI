@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, Box, ShoppingBag, ImageIcon, Package, Scissors, 
-  Users, Star, Heart, Bookmark, Layers, Images, Menu, X, LogOut
+  Users, Star, Heart, Bookmark, Layers, Images, Gift, Menu, X, LogOut
 } from "lucide-react";
 
 const navGroups = [
@@ -33,6 +33,7 @@ const navGroups = [
       { name: "Favourites", href: "/favourites", icon: Bookmark },
       { name: "Collections", href: "/collections", icon: Layers },
       { name: "Bespoke Collections", href: "/bespoke-collections", icon: Scissors },
+      { name: "Gift Cards", href: "/gift-cards", icon: Gift },
       { name: "Collection Images", href: "/collection-images", icon: Images },
     ]
   }

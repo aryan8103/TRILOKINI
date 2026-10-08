@@ -53,6 +53,11 @@ export const createBespokeCollection = (data) => api.post('/api/bespoke-collecti
 export const updateBespokeCollection = (id, data) => api.put(`/api/bespoke-collections/${id}`, data);
 export const deleteBespokeCollection = (id) => api.delete(`/api/bespoke-collections/${id}`);
 
+export const getGiftCards = () => api.get('/api/gift-cards');
+export const createGiftCard = (data) => api.post('/api/gift-cards', data);
+export const updateGiftCard = (id, data) => api.put(`/api/gift-cards/${id}`, data);
+export const deleteGiftCard = (id) => api.delete(`/api/gift-cards/${id}`);
+
 export const getCollectionImages = () => api.get('/api/collection-images');
 export const createCollectionImage = (data) => api.post('/api/collection-images', data);
 export const updateCollectionImage = (id, data) => api.put(`/api/collection-images/${id}`, data);

@@ -1,3 +1,5 @@
+import type { GiftCard as GiftCardType } from "@/lib/types";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // Types
@@ -85,6 +87,8 @@ export type ApiProduct = {
   bespokeOptions?: BespokeOptionGroup[];
   isActive?: boolean;
 };
+
+type ApiGiftCard = Omit<GiftCardType, "id"> & { _id: string };
 
 export type Designer = {
   _id: string;
@@ -204,6 +208,23 @@ export type Collection = {
 };
 
 export const getActiveCollections = () => fetchApi<Collection[]>('/api/collections/active');
+
+export async function getActiveGiftCards(): Promise<GiftCardType[]> {
+  const cards = await fetchApi<ApiGiftCard[]>('/api/gift-cards/active');
+  return cards.map(({ _id, ...card }) => ({ ...card, id: _id }));
+}
+
+export async function getActiveGiftCard(id: string): Promise<GiftCardType | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/gift-cards/active/${id}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const { _id, ...card } = await res.json() as ApiGiftCard;
+    return { ...card, id: _id };
+  } catch (error) {
+    console.error(`Failed to fetch gift card ${id}:`, error);
+    return null;
+  }
+}
 
 // Orders & pricing
 async function postApi<T>(endpoint: string, body: unknown): Promise<T> {

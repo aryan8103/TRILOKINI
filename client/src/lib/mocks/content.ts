@@ -1,4 +1,4 @@
-import type { CMSPage, FAQItem, FilmArticle, GiftCard } from "@/lib/types";
+import type { CMSPage, FAQItem, FilmArticle } from "@/lib/types";
 
 const home = "/images/home";
 
@@ -53,16 +53,6 @@ export const mockFilmArticles: FilmArticle[] = [
     publishedAt: "2026-05-20",
   },
 ];
-
-export const mockGiftCards: GiftCard[] = Array.from({ length: 15 }, (_, index) => ({
-  id: `gc-${index + 1}`,
-  title: "THANKSGIVING GIFT CARD",
-  description: "Make this Thanksgiving extra special",
-  imageUrl: "/images/gift-cards/for-a-little-happiness.png",
-  amounts: [5000, 10000, 25000, 50000],
-  minAmount: 1000,
-  maxAmount: 100000,
-}));
 
 export const mockFAQ: FAQItem[] = [
   { id: "1", question: "How do I track my order?", answer: "Once your order ships, you will receive a tracking link via email and SMS. You can also track orders from your account page." },
@@ -124,10 +114,6 @@ export const mockCMSPages: Record<string, CMSPage> = {
 
 export function getMockFilmBySlug(slug: string): FilmArticle | null {
   return mockFilmArticles.find((a) => a.slug === slug) ?? null;
-}
-
-export function getMockGiftCardById(id: string): GiftCard | null {
-  return mockGiftCards.find((g) => g.id === id) ?? null;
 }
 
 export function getMockCMSPage(slug: string): CMSPage | null {

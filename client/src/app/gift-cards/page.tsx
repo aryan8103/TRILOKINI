@@ -1,11 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PageShell } from "@/components/templates/page-shell";
-import { mockGiftCards } from "@/lib/mocks/content";
+import { getActiveGiftCards } from "@/lib/api";
 
 export const metadata = { title: "Gift Cards | Trilokini" };
+export const dynamic = "force-dynamic";
 
-export default function GiftCardsPage() {
+export default async function GiftCardsPage() {
+  const giftCards = await getActiveGiftCards();
+
   return (
     <PageShell>
       <div className="mx-auto max-w-[1440px] px-5 pb-10 pt-5 lg:pb-12">
@@ -13,7 +16,7 @@ export default function GiftCardsPage() {
           <h1 className="text-[14px] font-medium tracking-[0.03em] text-black">GIFT CARDS</h1>
         </header>
         <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-11 lg:gap-y-[30px]">
-          {mockGiftCards.map((card) => (
+          {giftCards.map((card) => (
             <Link key={card.id} href={`/gift-cards/${card.id}`} className="group block">
               <div className="relative aspect-[244/366] overflow-hidden bg-gray-light">
                 <Image src={card.imageUrl} alt="For a little happiness gift card" fill sizes="(min-width: 1024px) 17vw, (min-width: 640px) 33vw, 50vw" className="object-cover object-[25%_center] transition-transform duration-500 group-hover:scale-[1.015]" />
@@ -25,6 +28,7 @@ export default function GiftCardsPage() {
             </Link>
           ))}
         </div>
+        {!giftCards.length ? <p className="py-16 text-center text-[13px] text-gray">Gift cards are coming soon.</p> : null}
       </div>
     </PageShell>
   );

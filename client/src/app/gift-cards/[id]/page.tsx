@@ -2,11 +2,13 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PageShell, ContentContainer } from "@/components/templates/page-shell";
 import { GiftCardForm } from "@/components/gift-card-form";
-import { getMockGiftCardById } from "@/lib/mocks/content";
+import { getActiveGiftCard } from "@/lib/api";
+
+export const dynamic = "force-dynamic";
 
 export default async function GiftCardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const card = getMockGiftCardById(id);
+  const card = await getActiveGiftCard(id);
   if (!card) notFound();
 
   return (
